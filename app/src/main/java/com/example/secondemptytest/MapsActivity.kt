@@ -13,6 +13,9 @@ import android.widget.Toast
 import com.google.android.gms.maps.model.Marker
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+    override fun onMarkerClick(p0: Marker?): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private lateinit var mMap: GoogleMap
 
@@ -47,32 +50,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 Log.d("Map_Tag", "CLICK")
             }
         })
-    }
 
-    /** Called when the user clicks a marker.  */
-    override fun onMarkerClick(marker:Marker):Boolean {
-
-        val myToast = Toast.makeText(this, "Hello Toast!", Toast.LENGTH_SHORT)
-        myToast.show()
-        return true
-        /*
-        // Retrieve the data from the marker.
-        var clickCount = marker.tag as Int?
-
-        // Check if a click count was set, then display the click count.
-        if (clickCount != null)
-        {
-            clickCount = clickCount!! + 1
-            marker.tag = clickCount
-            Toast.makeText(this,marker.title +  " has been clicked " + clickCount + " times.",
-                Toast.LENGTH_SHORT).show()
-        }
-
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
-        return false
-        */
+        mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
+            override fun onMarkerClick(marker: Marker): Boolean {
+                Log.d("Marker_tag", "MARKER CLICKED")
+                return true;
+            }
+        })
     }
 
 }
