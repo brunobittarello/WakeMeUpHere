@@ -1,4 +1,4 @@
-package com.example.secondemptytest
+package com.wakemeuphere
 
 import org.junit.Test
 

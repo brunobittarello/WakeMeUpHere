@@ -1,4 +1,4 @@
-package com.example.secondemptytest
+package com.wakemeuphere
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,7 +12,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import android.widget.Toast
 import com.google.android.gms.maps.model.Marker
 import android.content.Intent
-
+import com.wakemeuphere.R
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -58,10 +58,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             override fun onMarkerClick(marker: Marker): Boolean {
                 //clicking on the marker should take the user to the alarm setup
 //                val intent = Intent(this, SetupAlarmActivity::class.java);
+
+                /*
                 val intent = Intent(this@MapsActivity, SetupAlarmActivity::class.java);
 
                 startActivity(intent)
-
+                */
                 Log.d("Marker_tag", "MARKER CLICKED")
                 return true;
             }
