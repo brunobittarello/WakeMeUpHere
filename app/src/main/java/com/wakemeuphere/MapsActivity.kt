@@ -59,11 +59,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 //clicking on the marker should take the user to the alarm setup
 //                val intent = Intent(this, SetupAlarmActivity::class.java);
 
-                /*
-                val intent = Intent(this@MapsActivity, SetupAlarmActivity::class.java);
+                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
 
                 startActivity(intent)
-                */
                 Log.d("Marker_tag", "MARKER CLICKED")
                 return true;
             }
