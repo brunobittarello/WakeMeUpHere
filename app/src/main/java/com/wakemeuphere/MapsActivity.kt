@@ -54,6 +54,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         })
 
+
+        mMap.setOnMapLongClickListener(object : GoogleMap.OnMapLongClickListener{
+            override fun onMapLongClick(point: LatLng) {
+
+                mMap.addMarker(MarkerOptions().position(point));
+
+            }
+        })
+
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
                 //clicking on the marker should take the user to the alarm setup
@@ -68,6 +77,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 return true;
             }
         })
+
     }
 
 }
