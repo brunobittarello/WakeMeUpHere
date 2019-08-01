@@ -11,6 +11,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.widget.Toast
 import com.google.android.gms.maps.model.Marker
+import android.content.Intent
+
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     override fun onMarkerClick(p0: Marker?): Boolean {
@@ -53,6 +56,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
+                //clicking on the marker should take the user to the alarm setup
+//                val intent = Intent(this, SetupAlarmActivity::class.java);
+                val intent = Intent(this@MapsActivity, SetupAlarmActivity::class.java);
+
+                startActivity(intent)
+
                 Log.d("Marker_tag", "MARKER CLICKED")
                 return true;
             }
