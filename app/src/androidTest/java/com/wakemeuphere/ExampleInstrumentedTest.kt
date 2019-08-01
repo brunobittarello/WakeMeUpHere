@@ -1,4 +1,4 @@
-package com.example.secondemptytest
+package com.wakemeuphere
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
