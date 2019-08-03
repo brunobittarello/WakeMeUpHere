@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_alarm_form.*
 
 //https://www.viralandroid.com/2016/01/simple-android-user-contact-form-xml-ui-design.html
 class AlarmForm : AppCompatActivity() {
@@ -17,6 +18,10 @@ class AlarmForm : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm_form)
+
+        val alarm = intent.extras?.get("AlarmObject") as Alarm
+        textView.text = alarm.position.toString()
+        //getSerializableExtra("AlarmObject")
 
         etName = findViewById(R.id.alarm_name)
         etDistance = findViewById(R.id.alarm_distance)

@@ -9,10 +9,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import android.widget.Toast
 import com.google.android.gms.maps.model.Marker
 import android.content.Intent
-import com.wakemeuphere.R
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -67,9 +65,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             override fun onMarkerClick(marker: Marker): Boolean {
                 //clicking on the marker should take the user to the alarm setup
 //                val intent = Intent(this, SetupAlarmActivity::class.java);
+                val alarm = Alarm(marker.position)
 
                 val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-
+                intent.putExtra("AlarmObject", alarm)
                 startActivity(intent)
                 Log.d("Marker_tag", "MARKER CLICKED")
                 return true;
