@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import kotlinx.android.synthetic.main.activity_alarm_form.*
+import com.wakemeuphere.internal.AppMemoryManager
 
 //https://www.viralandroid.com/2016/01/simple-android-user-contact-form-xml-ui-design.html
 class AlarmForm : AppCompatActivity() {
@@ -19,9 +19,7 @@ class AlarmForm : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm_form)
 
-        val alarm = intent.extras?.get("AlarmObject") as Alarm
-        textView.text = alarm.position.toString()
-        //getSerializableExtra("AlarmObject")
+        //val alarm = intent.extras?.get("AlarmObject") as Alarm
 
         etName = findViewById(R.id.alarm_name)
         etDistance = findViewById(R.id.alarm_distance)
@@ -31,7 +29,8 @@ class AlarmForm : AppCompatActivity() {
         etName.setText("Teste")
         etDistance.setText("500")
         etMusic.setText("Lady Gaga - Comendo o cu do Matheus")
-        tvPosition.setText("69.00 11.24")
+        //tvPosition.text = alarm.position.toString()
+        tvPosition.text = AppMemoryManager.teste
     }
 
     fun OnButtonCancelClicked(view: View) {
