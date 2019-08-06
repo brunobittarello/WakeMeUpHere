@@ -9,10 +9,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import android.widget.Toast
 import com.google.android.gms.maps.model.Marker
 import android.content.Intent
-import com.wakemeuphere.R
+import com.wakemeuphere.internal.Alarm
+import com.wakemeuphere.internal.AppMemoryManager
+import com.wakemeuphere.internal.AppMemoryManager.LoadMarkers
+import com.wakemeuphere.internal.AppMemoryManager.alarms
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -24,6 +26,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        AppMemoryManager.teste = "MAPS"
+
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -43,14 +48,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        LoadMarkers()
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(AppMemoryManager.alarms[0].latitude, AppMemoryManager.alarms[0].longitude)))//TODO change to the current GPS position
 
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
-            override fun onMapClick(p0: LatLng?) {
+            override fun onMapClick(position: LatLng?) {
                 Log.d("Map_Tag", "CLICK")
+                if (position == null)
+                    return
+
+                mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
             }
         })
 
@@ -67,17 +74,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             override fun onMarkerClick(marker: Marker): Boolean {
                 //clicking on the marker should take the user to the alarm setup
 //                val intent = Intent(this, SetupAlarmActivity::class.java);
+                val alarm = Alarm()
 
-                /*
-                val intent = Intent(this@MapsActivity, SetupAlarmActivity::class.java);
-
+                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
+                intent.putExtra("AlarmObject", alarm)
                 startActivity(intent)
-                */
                 Log.d("Marker_tag", "MARKER CLICKED")
                 return true;
             }
         })
 
+
     }
 
+    fun LoadMarkers() {
+        AppMemoryManager.LoadMarkers()
+        for (alarm in AppMemoryManager.alarms)
+        {
+            val point = LatLng(alarm.latitude, alarm.longitude)
+            mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
+        }
+
+    }
 }
