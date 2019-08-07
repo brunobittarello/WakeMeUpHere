@@ -1,5 +1,8 @@
 package com.wakemeuphere
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +14,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Marker
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.LoadMarkers
@@ -18,14 +24,42 @@ import com.wakemeuphere.internal.AppMemoryManager.alarms
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+    private val LOCATION_REQUEST_CODE = 1010
+    private val BACKGROUND_LOCATION_REQUEST_CODE = 1011
+    private val READ_STORAGE_REQUEST_CODE = 1012
+    private lateinit var mMap: GoogleMap
+
+    // não faz sentido, a documentação fala para dar override na função, essa merda não funciona, odeio isso, vai se foder
+    // vai tomar no cu, nada funciona direito
+//    override fun onRequestPermissionsResult(requestCode: Int,
+//                                            permissions: Array<String>, grantResults: IntArray) {
+//        when (requestCode) {
+//            LOCATION_REQUEST_CODE -> {
+//
+//                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+//
+//                    Log.i("PERMISSÃO","Permission has been denied by user")
+//                } else {
+//                    Log.i("PERMISSÃO","Permission has been granted by user")
+//                }
+//            }
+//            else -> {
+//                Log.i("PERMISSÃO","codigo bizarro")
+//            }
+//        }
+//    }﻿
+
     override fun onMarkerClick(p0: Marker?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST_CODE )
+        //ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_REQUEST_CODE )
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_STORAGE_REQUEST_CODE )
 
         AppMemoryManager.teste = "MAPS"
 
@@ -93,7 +127,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         {
             val point = LatLng(alarm.latitude, alarm.longitude)
             mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
+            //adiciona zoom
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 20.0f))
         }
 
+    }
+
+    fun checkForPermissions(){
+        val permissionLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+            Log.d("PERMISSÃO", "TEM PERMISSÃO")
+        }else{
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST_CODE )
+            Log.d("PERMISSÃO", "PERMISSÃO NÃO EXISTE")
+        }
     }
 }
