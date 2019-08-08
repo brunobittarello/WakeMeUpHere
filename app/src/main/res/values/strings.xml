@@ -16,4 +16,8 @@
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="alarm_title">Title</string>
+    <string name="alarm_distance">Distance</string>
+    <string name="alarm_music">Music</string>
+    <string name="alarm_position">Position</string>
 </resources>
