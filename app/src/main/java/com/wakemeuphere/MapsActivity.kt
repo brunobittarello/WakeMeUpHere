@@ -13,8 +13,6 @@ import com.google.android.gms.maps.model.Marker
 import android.content.Intent
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
-import com.wakemeuphere.internal.AppMemoryManager.LoadMarkers
-import com.wakemeuphere.internal.AppMemoryManager.alarms
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -27,7 +25,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AppMemoryManager.teste = "MAPS"
+        AppMemoryManager.load(this)//Loads the memory
 
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -48,7 +46,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        LoadMarkers()
+        loadMarkers()
         mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(AppMemoryManager.alarms[0].latitude, AppMemoryManager.alarms[0].longitude)))//TODO change to the current GPS position
 
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
@@ -58,6 +56,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     return
 
                 mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
+
+                var newAlarm = Alarm()
+                newAlarm.setLatLng(position)
+
+                AppMemoryManager.addAlarm(newAlarm)
             }
         })
 
@@ -76,6 +79,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 //                val intent = Intent(this, SetupAlarmActivity::class.java);
                 val alarm = Alarm()
 
+
+
                 val intent = Intent(this@MapsActivity, AlarmForm::class.java);
                 intent.putExtra("AlarmObject", alarm)
                 startActivity(intent)
@@ -87,8 +92,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
-    fun LoadMarkers() {
-        AppMemoryManager.LoadMarkers()
+    fun loadMarkers() {
         for (alarm in AppMemoryManager.alarms)
         {
             val point = LatLng(alarm.latitude, alarm.longitude)

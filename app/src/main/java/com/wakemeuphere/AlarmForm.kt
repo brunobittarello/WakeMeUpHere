@@ -30,7 +30,6 @@ class AlarmForm : AppCompatActivity() {
         etDistance.setText("500")
         etMusic.setText("Lady Gaga - Comendo o cu do Matheus")
         //tvPosition.text = alarm.position.toString()
-        tvPosition.text = AppMemoryManager.teste
     }
 
     fun OnButtonCancelClicked(view: View) {

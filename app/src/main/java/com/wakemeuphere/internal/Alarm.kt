@@ -1,9 +1,10 @@
 package com.wakemeuphere.internal
 
 import com.google.android.gms.maps.model.LatLng
+import org.json.JSONObject
 import java.io.Serializable
 
-class Alarm : Serializable {
+class Alarm : JSONObject, Serializable {
 
     var id: Int = 0
     var title: String = ""
@@ -13,7 +14,10 @@ class Alarm : Serializable {
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 
-    fun SetLatLng (position: LatLng) {
+    constructor() {}
+    constructor(json: String) : super(json) { }
+
+    fun setLatLng (position: LatLng) {
         longitude = position.longitude
         latitude = position.latitude
     }
