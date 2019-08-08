@@ -1,5 +1,8 @@
 package com.wakemeuphere
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +14,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Marker
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.LoadMarkers
@@ -18,11 +24,14 @@ import com.wakemeuphere.internal.AppMemoryManager.alarms
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+    private lateinit var mMap: GoogleMap
+
+
+
     override fun onMarkerClick(p0: Marker?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +102,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         {
             val point = LatLng(alarm.latitude, alarm.longitude)
             mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
+            //adiciona zoom
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 20.0f))
         }
 
     }
+
 }
