@@ -13,30 +13,54 @@
                   android:orientation="vertical"
                   android:padding="16dp">
 
+        <TextView
+                android:text="@string/alarm_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/alarm_title_label"/>
+
         <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorPrimaryDark"
-                android:hint="Name"
-                android:id="@+id/alarm_name"/>
+                android:hint="@string/alarm_title"
+                android:id="@+id/alarm_title"/>
+
+        <TextView
+                android:text="@string/alarm_distance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/alarm_distance_label"/>
 
         <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
                 android:backgroundTint="@color/colorPrimaryDark"
-                android:hint="Distance"
+                android:hint="@string/alarm_distance"
                 android:id="@+id/alarm_distance"/>
+
+        <TextView
+                android:text="@string/alarm_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/alarm_music_label"/>
 
         <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorPrimaryDark"
-                android:hint="Music"
+                android:hint="@string/alarm_music"
                 android:id="@+id/alarm_music"/>
 
         <TextView
-                android:text="Position"
+                android:text="@string/alarm_position"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/alarm_position_label"/>
+
+        <TextView
+                android:text="@string/alarm_position"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/alarm_position"
