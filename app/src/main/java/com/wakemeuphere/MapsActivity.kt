@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
+import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -84,32 +85,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
-                //clicking on the marker should take the user to the alarm setup
-//                val intent = Intent(this, SetupAlarmActivity::class.java);
-                val alarm = Alarm()
-
-
-
-                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-                intent.putExtra("AlarmObject", alarm)
-                startActivity(intent)
                 Log.d("Marker_tag", "MARKER CLICKED")
-                return true;
+                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true//Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
+
+                AppMemoryManager.alarmSelected = alarm
+                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
+                startActivity(intent)
+
+                return true
             }
         })
 
 
     }
 
-    fun loadMarkers() {
+    private fun loadMarkers() {
         for (alarm in AppMemoryManager.alarms)
         {
             val point = LatLng(alarm.latitude, alarm.longitude)
-            mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
+            alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
             //adiciona zoom
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 20.0f))
         }
-
     }
-
 }

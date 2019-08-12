@@ -19,6 +19,7 @@ object AppMemoryManager {
 
     private lateinit var preferences: SharedPreferences
 
+    lateinit var alarmSelected : Alarm
     var alarms: MutableList<Alarm> = mutableListOf()
 
     init {
@@ -30,7 +31,13 @@ object AppMemoryManager {
         save()
     }
 
-    private fun save()
+    fun deleteSelectedAlarm()
+    {
+        alarms.remove(alarmSelected)
+        save()
+    }
+
+    fun save()
     {
         Log.w("AppMemoryManager", "SAVE")
         var edit = preferences.edit()
