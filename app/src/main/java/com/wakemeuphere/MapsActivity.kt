@@ -15,11 +15,16 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Marker
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.Circle
+
+
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -53,10 +58,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
         loadMarkers()
+
+        mMap.setMyLocationEnabled(true)
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(AppMemoryManager.alarms[0].latitude, AppMemoryManager.alarms[0].longitude)))//TODO change to the current GPS position
 
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
@@ -104,6 +113,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         {
             val point = LatLng(alarm.latitude, alarm.longitude)
             alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
+            //draw circle
+            val fillColor = Color.parseColor("#6b7ab8a6")
+            val circle = mMap.addCircle(
+                CircleOptions()
+                    .center(point)
+                    .radius(10000.0)
+                    .strokeColor(Color.RED)
+                    .fillColor(fillColor)
+            )
+
             //adiciona zoom
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 20.0f))
         }
