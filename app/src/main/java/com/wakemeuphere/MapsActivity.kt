@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
+import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Circle
 
@@ -70,51 +71,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
             override fun onMapClick(position: LatLng?) {
                 Log.d("Map_Tag", "CLICK")
-                if (position == null)
-                    return
-
-                mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
-
-                var newAlarm = Alarm()
-                newAlarm.setLatLng(position)
-
-                AppMemoryManager.addAlarm(newAlarm)
             }
         })
 
 
         mMap.setOnMapLongClickListener(object : GoogleMap.OnMapLongClickListener{
-            override fun onMapLongClick(point: LatLng) {
+            override fun onMapLongClick(position: LatLng) {
 
-                mMap.addMarker(MarkerOptions().position(point));
+                if (position == null)
+                    return
+
+                var marker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
+
+                var newAlarm = Alarm()
+                newAlarm.setLatLng(position)
+                newAlarm.marker = marker
+
+                AppMemoryManager.addAlarm(newAlarm)
 
             }
         })
 
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
-                //clicking on the marker should take the user to the alarm setup
-//                val intent = Intent(this, SetupAlarmActivity::class.java);
-                val alarm = Alarm()
-
-
-
-                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-                intent.putExtra("AlarmObject", alarm)
-                startActivity(intent)
                 Log.d("Marker_tag", "MARKER CLICKED")
-                return true;
+                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true//Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
+
+                AppMemoryManager.alarmSelected = alarm
+                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
+                startActivity(intent)
+
+                return true
             }
         })
 
 
     }
 
-    fun loadMarkers() {
+    private fun loadMarkers() {
         for (alarm in AppMemoryManager.alarms)
         {
             val point = LatLng(alarm.latitude, alarm.longitude)
-            mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
+            alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
             //draw circle
             val fillColor = Color.parseColor("#6b7ab8a6")
             val circle = mMap.addCircle(
@@ -128,7 +126,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             //adiciona zoom
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 20.0f))
         }
-
     }
-
 }

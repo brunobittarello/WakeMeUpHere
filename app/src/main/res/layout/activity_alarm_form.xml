@@ -9,9 +9,9 @@
 
     <LinearLayout
             android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical"
-                  android:padding="16dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
 
         <TextView
                 android:text="@string/alarm_title"
@@ -73,15 +73,15 @@
                 android:layout_weight="1"/>
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@color/colorPrimaryDark"
-            android:elevation="4dp"
-            android:paddingLeft="70dp"
-            android:paddingRight="70dp"
-            android:text="Submit"
-            android:textColor="#fff" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/colorPrimaryDark"
+                android:elevation="4dp"
+                android:paddingLeft="70dp"
+                android:paddingRight="70dp"
+                android:text="Save"
+                android:textColor="#fff" android:onClick="onButtonSaveClicked"/>
 
         <Button
                 android:layout_width="wrap_content"
@@ -91,7 +91,18 @@
                 android:elevation="4dp"
                 android:paddingLeft="70dp"
                 android:paddingRight="70dp"
-                android:text="Submit"
-                android:textColor="#fff" />
+                android:text="Delete"
+                android:textColor="#fff" android:onClick="onButtonDeleteClicked"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/colorPrimaryDark"
+                android:elevation="4dp"
+                android:paddingLeft="70dp"
+                android:paddingRight="70dp"
+                android:text="Back"
+                android:textColor="#fff" android:onClick="onButtonCancelClicked"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
