@@ -62,23 +62,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
             override fun onMapClick(position: LatLng?) {
                 Log.d("Map_Tag", "CLICK")
-                if (position == null)
-                    return
-
-                mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
-
-                var newAlarm = Alarm()
-                newAlarm.setLatLng(position)
-
-                AppMemoryManager.addAlarm(newAlarm)
             }
         })
 
 
         mMap.setOnMapLongClickListener(object : GoogleMap.OnMapLongClickListener{
-            override fun onMapLongClick(point: LatLng) {
+            override fun onMapLongClick(position: LatLng) {
 
-                mMap.addMarker(MarkerOptions().position(point));
+                if (position == null)
+                    return
+
+                var marker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
+
+                var newAlarm = Alarm()
+                newAlarm.setLatLng(position)
+                newAlarm.marker = marker
+
+                AppMemoryManager.addAlarm(newAlarm)
 
             }
         })

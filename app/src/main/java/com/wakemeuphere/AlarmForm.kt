@@ -8,7 +8,9 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import com.wakemeuphere.internal.AppMemoryManager
+import androidx.appcompat.app.AlertDialog
 
 //https://www.viralandroid.com/2016/01/simple-android-user-contact-form-xml-ui-design.html
 class AlarmForm : AppCompatActivity() {
@@ -66,8 +68,27 @@ class AlarmForm : AppCompatActivity() {
 
     fun onButtonDeleteClicked(view: View) {
 
-        AppMemoryManager.deleteSelectedAlarm()
-        onBackPressed()
+        //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
+        val builder = AlertDialog.Builder(this)
+
+
+        builder.setTitle("Remove alert")//TODO use resource
+        builder.setMessage("Are you want to remove this alert?")//TODO use resource
+
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("YES"){dialog, which ->
+            AppMemoryManager.deleteSelectedAlarm()
+            Toast.makeText(this, "Alarm deleted!", Toast.LENGTH_SHORT).show()
+            onBackPressed()
+        }
+
+        // Display a negative button on alert dialog
+        builder.setNegativeButton("No"){dialog,which ->
+            //Toast.makeText(applicationContext,"You are not agree.",Toast.LENGTH_SHORT).show()
+        }
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 }
 
