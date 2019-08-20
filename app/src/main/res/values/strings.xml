@@ -4,7 +4,15 @@
     <string name="title_activity_setup_alarm">SetupAlarm</string>
 
     <!-- Preference Titles -->
+
+    <!-- Channel Preferences -->
     <string name="messages_header">Messages</string>
+    <!-- Channel Preferences -->
+
+    <!-- Preference Titles -->
+    <string name="CANAL_BRASIL">Canal Brasil</string>
+    <string name="CANAL_BRASIL_DESCRIPTION">DESCRIÇÂO</string>
+
     <string name="sync_header">Sync</string>
 
     <!-- Messages Preferences -->
