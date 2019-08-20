@@ -23,8 +23,7 @@ import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Circle
-
-
+import com.wakemeuphere.internal.songs.SongManager
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -41,6 +40,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         super.onCreate(savedInstanceState)
 
         AppMemoryManager.load(this)//Loads the memory
+        SongManager.loadSongs(this)
 
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

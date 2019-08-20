@@ -6,18 +6,20 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.wakemeuphere.internal.AppMemoryManager
 import androidx.appcompat.app.AlertDialog
+import com.wakemeuphere.internal.songs.SongManager
 
 //https://www.viralandroid.com/2016/01/simple-android-user-contact-form-xml-ui-design.html
+
+//About Spinner
+//https://www.raywenderlich.com/155-android-listview-tutorial-with-kotlin
 class AlarmForm : AppCompatActivity() {
 
     private lateinit var etTitle : EditText
     private lateinit var etDistance : EditText
-    private lateinit var etMusic : EditText
+    private lateinit var spMusic : Spinner
     private lateinit var tvPosition: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,23 +35,29 @@ class AlarmForm : AppCompatActivity() {
         //Get Labels
         var lbTitle = findViewById<TextView>(R.id.alarm_title_label)
         var lbDistance = findViewById<TextView>(R.id.alarm_distance_label)
-        var lbMusic = findViewById<TextView>(R.id.alarm_music_label)
+        //var lbMusic = findViewById<TextView>(R.id.alarm_music_label)
 
         //Get Edit Texts
         etTitle = findViewById(R.id.alarm_title)
         etDistance = findViewById(R.id.alarm_distance)
-        etMusic = findViewById(R.id.alarm_music)
+        spMusic = findViewById(R.id.alarm_music)
         tvPosition = findViewById(R.id.alarm_position)
+
+        //val listItems = mutableListOf<Song>()
+        //listItems.add("teste")
+        //listItems.add("teste2")
+        var adapter = ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, SongManager.songs)
+        spMusic.adapter = adapter
 
         //SetTexts
         etTitle.setText(AppMemoryManager.alarmSelected.title)
         etDistance.setText(AppMemoryManager.alarmSelected.minDistance.toString())
-        etMusic.setText("Lady Gaga - Comendo o cu do Matheus")
+        spMusic.setSelection(SongManager.songs.indexOf(SongManager.getSongById(AppMemoryManager.alarmSelected.soundId)))
         tvPosition.text = AppMemoryManager.alarmSelected.latitude.toString() + " - " + AppMemoryManager.alarmSelected.longitude
 
         etTitle.addTextChangedListener(MyTextWatcher(lbTitle))
         etDistance.addTextChangedListener(MyTextWatcher(lbDistance))
-        etMusic.addTextChangedListener(MyTextWatcher(lbMusic))
+        //spMusic.addTextChangedListener(MyTextWatcher(lbMusic))
     }
 
     fun onButtonCancelClicked(view: View) {
@@ -60,7 +68,7 @@ class AlarmForm : AppCompatActivity() {
 
         AppMemoryManager.alarmSelected.title = etTitle.text.toString()
         AppMemoryManager.alarmSelected.minDistance = etDistance.text.toString().toInt()
-        AppMemoryManager.alarmSelected.soundId = etMusic.text.toString()
+        AppMemoryManager.alarmSelected.soundId = SongManager.songs[spMusic.selectedItemPosition].id//TODO create some verification
         AppMemoryManager.save()
 
         onBackPressed()
@@ -90,6 +98,8 @@ class AlarmForm : AppCompatActivity() {
         val dialog: AlertDialog = builder.create()
         dialog.show()
     }
+
+
 }
 
 class MyTextWatcher : TextWatcher

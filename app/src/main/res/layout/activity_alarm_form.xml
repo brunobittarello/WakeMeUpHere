@@ -46,11 +46,9 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/alarm_music_label"/>
 
-        <EditText
-                android:layout_width="fill_parent"
+        <Spinner
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorPrimaryDark"
-                android:hint="@string/alarm_music"
                 android:id="@+id/alarm_music"/>
 
         <TextView
