@@ -21,4 +21,8 @@ class Alarm {
         longitude = position.longitude
         latitude = position.latitude
     }
+
+    fun getLatLng () : LatLng {
+        return LatLng(latitude, longitude)
+    }
 }
