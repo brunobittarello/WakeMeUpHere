@@ -43,9 +43,9 @@ class MainActivity : AppCompatActivity() {
                     && perms[Manifest.permission.ACCESS_BACKGROUND_LOCATION] != PackageManager.PERMISSION_GRANTED)
                     finish()
                 else{
-                    val intent = Intent(this, MapsActivity::class.java);
-                    startActivity(intent)
-                    finish()
+//                    val intent = Intent(this, MapsActivity::class.java);
+//                    startActivity(intent)
+//                    finish()
                 }
             }
             else -> {
