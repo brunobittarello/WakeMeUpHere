@@ -1,63 +1,67 @@
-package com.wakemeuphere
+package com.wakemeuphere.ui.mundi
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.Marker
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import com.wakemeuphere.internal.Alarm
-import com.wakemeuphere.internal.AppMemoryManager
-import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.Circle
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.wakemeuphere.AlarmForm
+import com.wakemeuphere.R
+import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AlarmNotification
-import com.wakemeuphere.internal.songs.SongManager
+import com.wakemeuphere.internal.AppMemoryManager
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MundiFragment : Fragment() {
+
+    companion object {
+        fun newInstance() = MundiFragment()
+    }
+
+//    private lateinit var viewModel: FormViewModel
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        var rootView: View = inflater.inflate(R.layout.fragment_map, container, false)
+
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.frg) as SupportMapFragment?
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(MyMaps())
+        }
+
+        return rootView
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+//        viewModel = ViewModelProviders.of(this).get(FormViewModel::class.java)
+        // TODO: Use the ViewModel
+    }
+
+}
+
+class MyMaps : OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
 
-
-
-    override fun onMarkerClick(p0: Marker?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    constructor(){
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        AppMemoryManager.load(this)//Loads the memory
-        SongManager.loadSongs(this)
-
-        setContentView(R.layout.activity_maps)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map2) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-    }
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -66,7 +70,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         mMap.setMyLocationEnabled(true)
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(AppMemoryManager.alarms[0].latitude, AppMemoryManager.alarms[0].longitude)))//TODO change to the current GPS position
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(AppMemoryManager.alarms[0].latitude, AppMemoryManager.alarms[0].longitude)))//TODO change to the current GPS position
 
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
             override fun onMapClick(position: LatLng?) {
@@ -96,16 +100,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             override fun onMarkerClick(marker: Marker): Boolean {
 
                 val an = AlarmNotification()
-                val notif = an.createNotification(this@MapsActivity)
-                an.showNotification(this@MapsActivity, notif)
+//                val notif = an.createNotification(this)
+//                an.showNotification(this@MyMaps, notif)
 
                 return true
 
                 val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true//Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
 
-                alarmSelected = alarm
-                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-                startActivity(intent)
+                AppMemoryManager.alarmSelected = alarm
+//                val intent = Intent(this, AlarmForm::class.java);
+//                startActivity(intent)
 
                 return true
             }
