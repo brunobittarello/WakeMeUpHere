@@ -16,8 +16,7 @@
         <fragment
                   android:layout_width="match_parent"
                   android:layout_height="200dp"
-                  android:id="@+id/map2"
-                  tools:context=".MapsActivity"
+                  android:id="@+id/alarm_map"
                   android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
         <fragment
