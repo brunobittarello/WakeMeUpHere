@@ -6,6 +6,7 @@ import android.util.Log
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
@@ -15,6 +16,9 @@ import androidx.fragment.app.FragmentActivity
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.Circle
+import com.wakemeuphere.internal.AlarmNotification
 import com.wakemeuphere.internal.songs.SongManager
 import java.util.*
 

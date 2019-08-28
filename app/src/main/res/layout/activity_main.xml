@@ -21,8 +21,8 @@
         >
         </fragment>
         <fragment
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:id="@+id/map"
+                android:name="com.wakemeuphere.ui.mundi.MundiFragment"
+                android:id="@+id/fragmap"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
     </LinearLayout>
