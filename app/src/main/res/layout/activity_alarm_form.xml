@@ -51,6 +51,19 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/alarm_music"/>
 
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/colorPrimaryDark"
+                android:paddingLeft="70dp"
+                android:paddingRight="70dp"
+                android:text="Play"
+                android:textColor="#fff"
+                android:id="@+id/alarm_button_music"
+                android:onClick="onButtonDoMusic"/>
+
         <TextView
                 android:text="@string/alarm_position"
                 android:layout_width="match_parent"

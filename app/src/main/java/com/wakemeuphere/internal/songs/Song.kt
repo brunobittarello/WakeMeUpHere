@@ -29,7 +29,10 @@ class Song {
 
     override fun toString() : String
     {
-        if (artist.isNullOrBlank())
+        //var music = if (isMusic) "isMusic" else ""
+        //var alarm = if (isAlarm) "isAlarm" else ""
+
+        if (artist.isNullOrBlank() || artist == "<unknown>")
             return  title
         return "$title - $artist"
     }
