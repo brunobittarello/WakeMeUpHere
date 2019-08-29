@@ -3,19 +3,15 @@ package com.wakemeuphere
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.Marker
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
 import androidx.fragment.app.FragmentActivity
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
@@ -24,11 +20,12 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Circle
 import com.wakemeuphere.internal.AlarmNotification
 import com.wakemeuphere.internal.songs.SongManager
+import java.util.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private lateinit var mMap: GoogleMap
-
+    private var isInitLocalSet: Boolean = false
 
 
     override fun onMarkerClick(p0: Marker?): Boolean {
@@ -44,8 +41,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map2) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.alarm_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
@@ -61,12 +57,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.isMyLocationEnabled = true
+        mMap.uiSettings.isZoomControlsEnabled = true
 
         loadMarkers()
-
-        mMap.setMyLocationEnabled(true)
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(AppMemoryManager.alarms[0].latitude, AppMemoryManager.alarms[0].longitude)))//TODO change to the current GPS position
+        currentLocation()
 
         mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
             override fun onMapClick(position: LatLng?) {
@@ -114,6 +109,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
+    //https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient
+    //https://medium.com/@droidbyme/get-current-location-using-fusedlocationproviderclient-in-android-cb7ebf5ab88e
+    @SuppressLint("MissingPermission")//TODO review this permission
+    private fun currentLocation()
+    {
+        val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        val locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 20 * 1000
+
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                for (location in locationResult.locations) {
+                    if (location != null) {
+                        val point = LatLng(location.latitude, location.longitude)
+                        if (isInitLocalSet == false)
+                        {
+                            isInitLocalSet = true
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 15f))
+                            return
+                        }
+                    }
+                }
+            }
+        }
+
+        mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+    }
+
     private fun loadMarkers() {
         for (alarm in AppMemoryManager.alarms)
         {
@@ -128,9 +153,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     .strokeColor(Color.RED)
                     .fillColor(fillColor)
             )
-
-            //adiciona zoom
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 20.0f))
         }
     }
 }

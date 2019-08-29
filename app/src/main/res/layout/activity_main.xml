@@ -8,24 +8,4 @@
         android:layout_height="match_parent"
         tools:context="com.wakemeuphere.MainActivity">
 
-    <LinearLayout
-
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-        <fragment
-                android:id="@+id/fragmentMenu"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:name="com.wakemeuphere.ui.form.FormFragment"
-        >
-        </fragment>
-        <fragment
-                android:name="com.wakemeuphere.ui.mundi.MundiFragment"
-                android:id="@+id/fragmap"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-    </LinearLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
