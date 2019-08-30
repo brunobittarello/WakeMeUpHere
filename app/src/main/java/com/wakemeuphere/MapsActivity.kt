@@ -6,9 +6,11 @@ import android.util.Log
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
@@ -20,12 +22,14 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Circle
 import com.wakemeuphere.internal.AlarmNotification
 import com.wakemeuphere.internal.songs.SongManager
+import com.wakemeuphere.ui.form.FormFragment
 import java.util.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
+    private var activeFragment: Int = 0
 
 
     override fun onMarkerClick(p0: Marker?): Boolean {
@@ -40,6 +44,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         SongManager.loadSongs(this)
 
         setContentView(R.layout.activity_maps)
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.alarm_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -90,17 +95,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
 
-                val an = AlarmNotification()
-                val notif = an.createNotification(this@MapsActivity)
-                an.showNotification(this@MapsActivity, notif)
+//                val an = AlarmNotification()
+//                val notif = an.createNotification(this@MapsActivity)
+//                an.showNotification(this@MapsActivity, notif)
 
-                return true
+//                return true
 
-                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true//Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
-
+                //Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
+                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
                 alarmSelected = alarm
-                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-                startActivity(intent)
+
+                var formFragment = FormFragment()
+                activeFragment = formFragment.id
+                val transaction = supportFragmentManager.beginTransaction()
+                transaction.replace(R.id.fragment_container, formFragment)
+                transaction.addToBackStack(null)
+                transaction.commit()
+
+//                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
+//                startActivity(intent)
 
                 return true
             }
@@ -108,6 +121,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
 
     }
+
+
+    fun removeActiveFragment(){
+        if(this.activeFragment != null)
+        {
+            var fragment: Fragment? = supportFragmentManager.findFragmentById(this.activeFragment)
+            val transaction = supportFragmentManager.beginTransaction()
+            if (fragment != null) {
+                transaction.remove(fragment)
+                this.activeFragment = 0
+            }
+        }
+    }
+
+//    private fun setActiveFragment(fragment: Fragment){
+//        this.activeFragment = fragment
+//    }
+//
+//    private fun getActiveFragment(){
+//        return this.activeFragment
+//    }
+//
+//    private fun createActiveFragment(){
+//
+//    }
 
     //https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient
     //https://medium.com/@droidbyme/get-current-location-using-fusedlocationproviderclient-in-android-cb7ebf5ab88e
@@ -155,4 +193,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             )
         }
     }
+
+
 }
