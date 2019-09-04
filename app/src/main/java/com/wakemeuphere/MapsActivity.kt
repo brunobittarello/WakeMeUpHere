@@ -6,10 +6,15 @@ import android.util.Log
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
@@ -105,8 +110,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
                 alarmSelected = alarm
 
+                toggleBtnLayout(true)
+
                 var formFragment = FormFragment()
                 activeFragment = formFragment.id
+//                formFragment.ta = form_tag
+                Log.d("criando fragmento", "fragmento criado com tag " + formFragment.tag)
                 val transaction = supportFragmentManager.beginTransaction()
                 transaction.replace(R.id.fragment_container, formFragment)
                 transaction.addToBackStack(null)
@@ -122,17 +131,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
+    fun toggleBtnLayout(isVisible:Boolean){
+        var btnView = findViewById<LinearLayout>(R.id.btnLayout)
+        btnView.layoutParams.height = 100
+        btnView.visibility = View.VISIBLE
+        if(!isVisible){
+            btnView.layoutParams.height = 0
+            btnView.visibility = View.INVISIBLE
+        }
+    }
 
     fun removeActiveFragment(){
-        if(this.activeFragment != null)
-        {
-            var fragment: Fragment? = supportFragmentManager.findFragmentById(this.activeFragment)
-            val transaction = supportFragmentManager.beginTransaction()
-            if (fragment != null) {
-                transaction.remove(fragment)
-                this.activeFragment = 0
-            }
+        toggleBtnLayout(false)
+        supportFragmentManager.popBackStack()
+    }
+
+    fun onButtonCancelClicked(view: View) {
+        removeActiveFragment()
+    }
+
+    fun onButtonDeleteClicked(view: View) {
+
+        //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
+        val builder = AlertDialog.Builder(baseContext)
+
+
+        builder.setTitle("Remove alert")//TODO use resource
+        builder.setMessage("Are you want to remove this alert?")//TODO use resource
+
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("YES"){dialog, which ->
+            AppMemoryManager.deleteSelectedAlarm()
+            Toast.makeText(baseContext, "Alarm deleted!", Toast.LENGTH_SHORT).show()
+//            onBackPressed()
         }
+
+        // Display a negative button on alert dialog
+        builder.setNegativeButton("No"){dialog,which ->
+            //Toast.makeText(applicationContext,"You are not agree.",Toast.LENGTH_SHORT).show()
+        }
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
 //    private fun setActiveFragment(fragment: Fragment){
