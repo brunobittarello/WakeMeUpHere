@@ -6,9 +6,16 @@ import android.util.Log
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
@@ -20,12 +27,14 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Circle
 import com.wakemeuphere.internal.AlarmNotification
 import com.wakemeuphere.internal.songs.SongManager
+import com.wakemeuphere.ui.form.FormFragment
 import java.util.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
+    private var activeFragment: Int = 0
 
 
     override fun onMarkerClick(p0: Marker?): Boolean {
@@ -40,6 +49,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         SongManager.loadSongs(this)
 
         setContentView(R.layout.activity_maps)
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.alarm_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -90,17 +100,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
 
-                val an = AlarmNotification()
-                val notif = an.createNotification(this@MapsActivity)
-                an.showNotification(this@MapsActivity, notif)
+//                val an = AlarmNotification()
+//                val notif = an.createNotification(this@MapsActivity)
+//                an.showNotification(this@MapsActivity, notif)
 
-                return true
+//                return true
 
-                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true//Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
-
+                //Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
+                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
                 alarmSelected = alarm
-                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-                startActivity(intent)
+
+                toggleBtnLayout(true)
+
+                var formFragment = FormFragment()
+                activeFragment = formFragment.id
+//                formFragment.ta = form_tag
+                Log.d("criando fragmento", "fragmento criado com tag " + formFragment.tag)
+                val transaction = supportFragmentManager.beginTransaction()
+                transaction.replace(R.id.fragment_container, formFragment)
+                transaction.addToBackStack(null)
+                transaction.commit()
+
+//                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
+//                startActivity(intent)
 
                 return true
             }
@@ -108,6 +130,62 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
 
     }
+
+    fun toggleBtnLayout(isVisible:Boolean){
+        var btnView = findViewById<LinearLayout>(R.id.btnLayout)
+        btnView.layoutParams.height = 100
+        btnView.visibility = View.VISIBLE
+        if(!isVisible){
+            btnView.layoutParams.height = 0
+            btnView.visibility = View.INVISIBLE
+        }
+    }
+
+    fun removeActiveFragment(){
+        toggleBtnLayout(false)
+        supportFragmentManager.popBackStack()
+    }
+
+    fun onButtonCancelClicked(view: View) {
+        removeActiveFragment()
+    }
+
+    fun onButtonDeleteClicked(view: View) {
+
+        //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
+        val builder = AlertDialog.Builder(baseContext)
+
+
+        builder.setTitle("Remove alert")//TODO use resource
+        builder.setMessage("Are you want to remove this alert?")//TODO use resource
+
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("YES"){dialog, which ->
+            AppMemoryManager.deleteSelectedAlarm()
+            Toast.makeText(baseContext, "Alarm deleted!", Toast.LENGTH_SHORT).show()
+//            onBackPressed()
+        }
+
+        // Display a negative button on alert dialog
+        builder.setNegativeButton("No"){dialog,which ->
+            //Toast.makeText(applicationContext,"You are not agree.",Toast.LENGTH_SHORT).show()
+        }
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
+//    private fun setActiveFragment(fragment: Fragment){
+//        this.activeFragment = fragment
+//    }
+//
+//    private fun getActiveFragment(){
+//        return this.activeFragment
+//    }
+//
+//    private fun createActiveFragment(){
+//
+//    }
 
     //https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient
     //https://medium.com/@droidbyme/get-current-location-using-fusedlocationproviderclient-in-android-cb7ebf5ab88e
@@ -155,4 +233,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             )
         }
     }
+
+
 }
