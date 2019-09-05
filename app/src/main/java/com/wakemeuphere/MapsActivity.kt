@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
@@ -93,6 +94,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 newAlarm.marker = marker
 
                 AppMemoryManager.addAlarm(newAlarm)
+                alarmSelected = newAlarm
+
+                openFormFragment()
 
             }
         })
@@ -110,16 +114,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
                 alarmSelected = alarm
 
-                toggleBtnLayout(true)
-
-                var formFragment = FormFragment()
-                activeFragment = formFragment.id
-//                formFragment.ta = form_tag
-                Log.d("criando fragmento", "fragmento criado com tag " + formFragment.tag)
-                val transaction = supportFragmentManager.beginTransaction()
-                transaction.replace(R.id.fragment_container, formFragment)
-                transaction.addToBackStack(null)
-                transaction.commit()
+                openFormFragment()
 
 //                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
 //                startActivity(intent)
@@ -131,14 +126,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
+    fun openFormFragment(){
+        var formFragment = FormFragment()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragment_container, formFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+
+        toggleBtnLayout(true)
+    }
+
     fun toggleBtnLayout(isVisible:Boolean){
         var btnView = findViewById<LinearLayout>(R.id.btnLayout)
-        btnView.layoutParams.height = 100
-        btnView.visibility = View.VISIBLE
+
         if(!isVisible){
             btnView.layoutParams.height = 0
             btnView.visibility = View.INVISIBLE
+            return
         }
+
+        btnView.layoutParams.height = 150
+        btnView.visibility = View.VISIBLE
     }
 
     fun removeActiveFragment(){

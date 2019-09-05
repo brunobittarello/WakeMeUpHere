@@ -18,6 +18,7 @@ import com.wakemeuphere.MyTextWatcher
 import com.wakemeuphere.R
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.songs.SongManager
+import java.lang.Double
 import java.lang.Exception
 
 class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
@@ -60,6 +61,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         spMusic = formView.findViewById(R.id.alarm_music)
         tvPosition = formView.findViewById(R.id.alarm_position)
         btnDoMusic = formView.findViewById(R.id.alarm_button_music)
+        etDistanceValue = formView.findViewById(R.id.alarm_distance_value)
 
         var adapter = ArrayAdapter(activity!!.baseContext, R.layout.support_simple_spinner_dropdown_item, SongManager.songs)
         spMusic.adapter = adapter
@@ -69,6 +71,21 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         etTitle.setText(AppMemoryManager.alarmSelected.title)
         etDistance.setText(AppMemoryManager.alarmSelected.minDistance.toString())
         var song = SongManager.getSongById(AppMemoryManager.alarmSelected.soundId)
+
+        etDistanceValue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onStopTrackingTouch(p0: SeekBar?) {}
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                // Display the current progress of SeekBar
+                etDistance.text = "$i"
+                AppMemoryManager.alarmSelected.minDistance = i
+            }
+
+        })
+
+//
 
         player = MediaPlayer()
         player.isLooping = false
@@ -80,6 +97,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         etTitle.addTextChangedListener(MyTextWatcher(lbTitle))
         etDistance.addTextChangedListener(MyTextWatcher(lbDistance))
+        etDistanceValue.progress = AppMemoryManager.alarmSelected.minDistance
         //spMusic.addTextChangedListener(MyTextWatcher(lbMusic))
 
         return formView
@@ -168,6 +186,8 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) { }
+
+
 
 
     class MyTextWatcher : TextWatcher
