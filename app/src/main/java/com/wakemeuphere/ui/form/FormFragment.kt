@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import com.google.android.gms.maps.model.Circle
 import com.wakemeuphere.MapsActivity
 import com.wakemeuphere.MyTextWatcher
 import com.wakemeuphere.R
@@ -37,6 +38,19 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var player: MediaPlayer
     private lateinit var btnDoMusic: Button
     private lateinit var formView: View
+
+    private lateinit var callback: OnCircleChangedListener
+
+    fun setOnCircleChanged(callback: OnCircleChangedListener) {
+        this.callback = callback
+    }
+
+    // This interface can be implemented by the Activity, parent Fragment,
+    // or a separate test implementation.
+    interface OnCircleChangedListener {
+        fun circleValue(radius: kotlin.Double)
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,7 +93,9 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 // Display the current progress of SeekBar
+//                activity?.baseContext?.
                 etDistance.text = "$i"
+                callback.circleValue(i.toDouble())
                 AppMemoryManager.alarmSelected.minDistance = i
             }
 

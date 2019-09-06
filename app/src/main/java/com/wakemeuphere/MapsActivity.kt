@@ -32,10 +32,20 @@ import com.wakemeuphere.ui.form.FormFragment
 import java.util.*
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener, FormFragment.OnCircleChangedListener {
+    override fun circleValue(radius: Double) {
+        this.newCircle?.radius = radius
+    }
+
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
     private var activeFragment: Int = 0
+    var newCircle: Circle? = null
+
+    private val fillColorGreen = Color.parseColor("#6b7ab8a6")
+    private val strokeColorGreen = Color.parseColor("#5c8579")
+    private val fillColorNew = Color.parseColor("#6b4a66f2")
+    private val strokeColorNew= Color.parseColor("#3e53bf")
 
 
     override fun onMarkerClick(p0: Marker?): Boolean {
@@ -55,6 +65,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val mapFragment = supportFragmentManager.findFragmentById(R.id.alarm_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
+
+    override fun onAttachFragment(fragment: Fragment) {
+        if (fragment is FormFragment) {
+            fragment.setOnCircleChanged(this)
+        }
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -95,6 +112,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
                 AppMemoryManager.addAlarm(newAlarm)
                 alarmSelected = newAlarm
+
+                newCircle = mMap.addCircle(
+                    CircleOptions()
+                        .center(marker.position)
+                        .radius(0.0)
+                        .strokeColor(strokeColorNew)
+                        .fillColor(fillColorNew)
+                )
 
                 openFormFragment()
 
@@ -231,13 +256,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val point = LatLng(alarm.latitude, alarm.longitude)
             alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
             //draw circle
-            val fillColor = Color.parseColor("#6b7ab8a6")
+
             val circle = mMap.addCircle(
                 CircleOptions()
                     .center(point)
-                    .radius(10000.0)
-                    .strokeColor(Color.RED)
-                    .fillColor(fillColor)
+                    .radius(alarm.minDistance.toDouble())
+                    .strokeColor(this.strokeColorGreen)
+                    .fillColor(this.fillColorGreen)
             )
         }
     }
