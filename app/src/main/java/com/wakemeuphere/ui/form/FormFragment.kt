@@ -155,12 +155,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    fun onButtonCancelClicked(view: View) {
-        activity?.supportFragmentManager?.popBackStack()
-//        onBackPressed()
-    }
-
-    fun onButtonSaveClicked(view: View) {
+    fun saveForm(view: View) {
 
         AppMemoryManager.alarmSelected.title = etTitle.text.toString()
         AppMemoryManager.alarmSelected.minDistance = etDistance.text.toString().toInt()
@@ -170,7 +165,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //        onBackPressed()
     }
 
-    fun onButtonDeleteClicked(view: View) {
+    fun deleteRegister(view: View) {
 
         //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
         val builder = AlertDialog.Builder(activity!!.baseContext)
