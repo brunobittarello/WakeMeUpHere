@@ -35,6 +35,7 @@ object AppMemoryManager {
     {
         alarms.remove(alarmSelected)
         alarmSelected.marker.remove()
+        alarmSelected.circle.remove()
         save()
     }
 

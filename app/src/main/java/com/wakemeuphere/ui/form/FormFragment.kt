@@ -13,11 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import com.google.android.gms.maps.model.Circle
 import com.wakemeuphere.MapsActivity
 import com.wakemeuphere.MyTextWatcher
 import com.wakemeuphere.R
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.songs.SongManager
+import java.lang.Double
 import java.lang.Exception
 
 class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
@@ -36,6 +38,19 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var player: MediaPlayer
     private lateinit var btnDoMusic: Button
     private lateinit var formView: View
+
+    private lateinit var callback: OnCircleChangedListener
+
+    fun setOnCircleChanged(callback: OnCircleChangedListener) {
+        this.callback = callback
+    }
+
+    // This interface can be implemented by the Activity, parent Fragment,
+    // or a separate test implementation.
+    interface OnCircleChangedListener {
+        fun circleValue(radius: kotlin.Double)
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,6 +75,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         spMusic = formView.findViewById(R.id.alarm_music)
         tvPosition = formView.findViewById(R.id.alarm_position)
         btnDoMusic = formView.findViewById(R.id.alarm_button_music)
+        etDistanceValue = formView.findViewById(R.id.alarm_distance_value)
 
         var adapter = ArrayAdapter(activity!!.baseContext, R.layout.support_simple_spinner_dropdown_item, SongManager.songs)
         spMusic.adapter = adapter
@@ -69,6 +85,23 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         etTitle.setText(AppMemoryManager.alarmSelected.title)
         etDistance.setText(AppMemoryManager.alarmSelected.minDistance.toString())
         var song = SongManager.getSongById(AppMemoryManager.alarmSelected.soundId)
+
+        etDistanceValue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onStopTrackingTouch(p0: SeekBar?) {}
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                // Display the current progress of SeekBar
+//                activity?.baseContext?.
+                etDistance.text = "$i"
+                callback.circleValue(i.toDouble())
+                AppMemoryManager.alarmSelected.minDistance = i
+            }
+
+        })
+
+//
 
         player = MediaPlayer()
         player.isLooping = false
@@ -80,6 +113,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         etTitle.addTextChangedListener(MyTextWatcher(lbTitle))
         etDistance.addTextChangedListener(MyTextWatcher(lbDistance))
+        etDistanceValue.progress = AppMemoryManager.alarmSelected.minDistance
         //spMusic.addTextChangedListener(MyTextWatcher(lbMusic))
 
         return formView
@@ -121,12 +155,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    fun onButtonCancelClicked(view: View) {
-        activity?.supportFragmentManager?.popBackStack()
-//        onBackPressed()
-    }
-
-    fun onButtonSaveClicked(view: View) {
+    fun saveForm(view: View) {
 
         AppMemoryManager.alarmSelected.title = etTitle.text.toString()
         AppMemoryManager.alarmSelected.minDistance = etDistance.text.toString().toInt()
@@ -136,7 +165,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //        onBackPressed()
     }
 
-    fun onButtonDeleteClicked(view: View) {
+    fun deleteRegister(view: View) {
 
         //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
         val builder = AlertDialog.Builder(activity!!.baseContext)
@@ -168,6 +197,8 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) { }
+
+
 
 
     class MyTextWatcher : TextWatcher

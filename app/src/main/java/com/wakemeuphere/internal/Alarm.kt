@@ -1,6 +1,7 @@
 package com.wakemeuphere.internal
 
 import com.beust.klaxon.Json
+import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 
@@ -16,6 +17,8 @@ class Alarm {
 
     @Json(ignored = true)
     lateinit var marker: Marker
+    @Json(ignored = true)
+    lateinit var circle: Circle
 
     fun setLatLng (position: LatLng) {
         longitude = position.longitude
