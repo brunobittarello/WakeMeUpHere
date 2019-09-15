@@ -46,11 +46,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     var btnView: View? = null
     var fragmentVisible: Boolean = false
 
-    private val fillColorGreen = Color.parseColor("#6b7ab8a6")
-    private val strokeColorGreen = Color.parseColor("#5c8579")
-    private val fillColorNew = Color.parseColor("#6b4a66f2")
-    private val strokeColorNew= Color.parseColor("#3e53bf")
-
 
     override fun onMarkerClick(p0: Marker?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -121,8 +116,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     CircleOptions()
                         .center(newMarker!!.position)
                         .radius(0.0)
-                        .strokeColor(strokeColorNew)
-                        .fillColor(fillColorNew)
+                        .strokeColor(R.color.strokeColorNew)
+                        .fillColor(R.color.fillColorNew)
                 )
 
                 openFormFragment()
@@ -133,8 +128,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
                 if(fragmentVisible){
-                    alarmSelected.circle.strokeColor = strokeColorGreen
-                    alarmSelected.circle.fillColor = fillColorGreen
+                    alarmSelected.circle.strokeColor = R.color.strokeColorGreen
+                    alarmSelected.circle.fillColor = R.color.fillColorGreen
                 }
 //                val an = AlarmNotification()
 //                val notif = an.createNotification(this@MapsActivity)
@@ -147,8 +142,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val point = LatLng(alarm.latitude, alarm.longitude)
 
                 alarmSelected = alarm
-                alarmSelected.circle.strokeColor = strokeColorNew
-                alarmSelected.circle.fillColor = fillColorNew
+                alarmSelected.circle.strokeColor = R.color.strokeColorNew
+                alarmSelected.circle.fillColor = R.color.fillColorNew
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, alarmSelected.minDistance + 3000f))
                 openFormFragment()
 
@@ -193,15 +188,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun onButtonCancelClicked(view: View) {
-        alarmSelected.circle.strokeColor = strokeColorGreen
-        alarmSelected.circle.fillColor = fillColorGreen
+        alarmSelected.circle.strokeColor = R.color.strokeColorGreen
+        alarmSelected.circle.fillColor = R.color.fillColorGreen
         newMarker?.remove()
         removeActiveFragment()
     }
 
     fun onButtonSaveClicked(view: View) {
-        alarmSelected.circle.strokeColor = strokeColorGreen
-        alarmSelected.circle.fillColor = fillColorGreen
+        alarmSelected.circle.strokeColor = R.color.strokeColorGreen
+        alarmSelected.circle.fillColor = R.color.fillColorGreen
         formFragment?.saveForm(btnView!!)
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Alarm saved!")
@@ -288,8 +283,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
             alarm.circle = mMap.addCircle(
                 CircleOptions().center(point).radius(alarm.minDistance.toDouble())
-                    .strokeColor(this.strokeColorGreen)
-                    .fillColor(this.fillColorGreen))
+                    .strokeColor(R.color.strokeColorGreen)
+                    .fillColor(R.color.fillColorGreen))
             //draw circle
         }
     }
