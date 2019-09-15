@@ -12,8 +12,8 @@ class Alarm {
 
     var id: Int = 0
     var title: String = ""
-    var minDistance: Int = 0
-    var definitiveDistance: Int = 0
+    var distance: Int = 0
+        set(value) { field = Utils.distanceInRange(value) }
     var soundId: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
@@ -35,7 +35,7 @@ class Alarm {
     @Json(ignored = true)
     val bounds: LatLngBounds
         get() {
-            val distanceFromCenterToCorner = minDistance * sqrt(2.0)
+            val distanceFromCenterToCorner = distance * sqrt(2.0)
             val center = point
             val southwestCorner = SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 225.0)
             val northeastCorner = SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0)

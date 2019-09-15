@@ -12,10 +12,9 @@ import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import com.wakemeuphere.internal.Alarm
-import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.google.android.gms.maps.model.CircleOptions
+import com.wakemeuphere.internal.*
 import com.wakemeuphere.internal.songs.SongManager
 import com.wakemeuphere.ui.fragments.AlarmFormFragment
 
@@ -24,7 +23,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
-    private var activeFragment: Int = 0
     var newMarker: Marker? = null
     var alarmFormFragment: AlarmFormFragment? = null
     var btnView: View? = null
@@ -79,9 +77,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMapLongClickListener(object : GoogleMap.OnMapLongClickListener{
             override fun onMapLongClick(position: LatLng) {
 
-                if (position == null)
-                    return
-
                 newMarker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))!! as Marker
 
                 val newAlarm = Alarm()
@@ -92,12 +87,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 alarmSelected = newAlarm
 
                 alarmSelected.circle = mMap.addCircle(
-                    CircleOptions()
-                        .center(newMarker!!.position)
-                        .radius(0.0)
-                        .strokeColor(R.color.strokeColorNew)
-                        .fillColor(R.color.fillColorNew)
+                    CircleOptions().center(newMarker!!.position).radius(Utils.alarm_distance_min.toDouble())
                 )
+                alarmSelected.circle.asNew(resources)
 
                 openFormFragment()
 
@@ -107,8 +99,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
                 if(fragmentVisible){
-                    alarmSelected.circle.strokeColor = R.color.strokeColorGreen
-                    alarmSelected.circle.fillColor = R.color.fillColorGreen
+                    alarmSelected.circle.asNormal(resources)
                 }
 //                val an = AlarmNotification()
 //                val notif = an.createNotification(this@MapsActivity)
@@ -120,8 +111,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
 
                 alarmSelected = alarm
-                alarmSelected.circle.strokeColor = R.color.strokeColorNew
-                alarmSelected.circle.fillColor = R.color.fillColorNew
+                alarmSelected.circle.asNew(resources)
 
                 mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(alarmSelected.bounds, 45))
                 openFormFragment()
@@ -165,15 +155,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun onButtonCancelClicked(view: View) {
-        alarmSelected.circle.strokeColor = R.color.strokeColorGreen
-        alarmSelected.circle.fillColor = R.color.fillColorGreen
+        alarmSelected.circle.asNormal(resources)
         newMarker?.remove()
         removeActiveFragment()
     }
 
     fun onButtonSaveClicked(view: View) {
-        alarmSelected.circle.strokeColor = R.color.strokeColorGreen
-        alarmSelected.circle.fillColor = R.color.fillColorGreen
+        alarmSelected.circle.asNormal(resources)
         alarmFormFragment?.saveForm(btnView!!)
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Alarm saved!")
@@ -246,10 +234,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         {
             val point = LatLng(alarm.latitude, alarm.longitude)
             alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
-            alarm.circle = mMap.addCircle(
-                CircleOptions().center(point).radius(alarm.minDistance.toDouble())
-                    .strokeColor(R.color.strokeColorGreen)
-                    .fillColor(R.color.fillColorGreen))
+            alarm.circle = mMap.addCircle(CircleOptions().center(point).radius(alarm.distance.toDouble()))
+            alarm.circle.asNormal(resources)
             //draw circle
         }
     }

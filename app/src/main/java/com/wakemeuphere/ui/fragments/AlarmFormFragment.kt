@@ -12,10 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import com.wakemeuphere.R
 import com.wakemeuphere.internal.AppMemoryManager
-import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
+import com.wakemeuphere.internal.Utils
 import com.wakemeuphere.internal.songs.SongManager
 import java.lang.Exception
 
@@ -67,9 +66,10 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         //SetTexts
         etTitle.setText(AppMemoryManager.alarmSelected.title)
-        etDistance.setText(AppMemoryManager.alarmSelected.minDistance.toString())
+        etDistance.setText(AppMemoryManager.alarmSelected.distance.toString())
         var song = SongManager.getSongById(AppMemoryManager.alarmSelected.soundId)
 
+        //etDistanceValue.max = R.integer.alarm_distance_max - R.integer.alarm_distance_min /
         etDistanceValue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onStopTrackingTouch(p0: SeekBar?) {}
 
@@ -78,9 +78,9 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 // Display the current progress of SeekBar
 //                activity?.baseContext?.
-                etDistance.text = "$i"
-                AppMemoryManager.alarmSelected.circle.radius = i.toDouble()
-                //AppMemoryManager.alarmSelected.minDistance = i
+                val dist = Utils.distanceInRange(i)
+                etDistance.text = "$dist"
+                AppMemoryManager.alarmSelected.circle.radius = dist.toDouble()
             }
 
         })
@@ -97,7 +97,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         etTitle.addTextChangedListener(MyTextWatcher(lbTitle))
         etDistance.addTextChangedListener(MyTextWatcher(lbDistance))
-        etDistanceValue.progress = AppMemoryManager.alarmSelected.minDistance
+        etDistanceValue.progress = AppMemoryManager.alarmSelected.distance
         //spMusic.addTextChangedListener(MyTextWatcher(lbMusic))
 
         return formView
@@ -141,7 +141,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     fun saveForm(view: View) {
 
         AppMemoryManager.alarmSelected.title = etTitle.text.toString()
-        AppMemoryManager.alarmSelected.minDistance = etDistance.text.toString().toInt()
+        AppMemoryManager.alarmSelected.distance = etDistance.text.toString().toInt()
         AppMemoryManager.alarmSelected.soundId = SongManager.songs[spMusic.selectedItemPosition].id//TODO create some verification
         AppMemoryManager.save()
 
