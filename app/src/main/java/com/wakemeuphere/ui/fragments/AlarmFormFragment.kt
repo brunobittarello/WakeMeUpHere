@@ -20,20 +20,17 @@ import java.lang.Exception
 
 class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
-    companion object {
-        fun newInstance() = AlarmFormFragment()
-    }
-
     private lateinit var viewModel: AlarmFormViewModel
     private lateinit var etTitle : EditText
     private lateinit var etDistance : TextView
+    private lateinit var swActive: Switch
     private lateinit var etDistanceValue : SeekBar
     private lateinit var spMusic : Spinner
-    private lateinit var tvPosition: TextView
 
     private lateinit var player: MediaPlayer
     private lateinit var btnDoMusic: Button
     private lateinit var formView: View
+    var listener: ((i: Int)->Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,37 +38,36 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ): View {
         formView = inflater.inflate(R.layout.form_fragment, container, false)
 
-        if (AppMemoryManager.alarmSelected == null)
-        {
-//            onBackPressed()
-//            return
-        }
-
         //Get Labels
-        var lbTitle = formView.findViewById<TextView>(R.id.alarm_title_label)
-        var lbDistance = formView.findViewById<TextView>(R.id.alarm_distance_label)
+        val lbTitle = formView.findViewById<TextView>(R.id.alarm_title_label)
+        val lbDistance = formView.findViewById<TextView>(R.id.alarm_distance_label)
         //var lbMusic = findViewById<TextView>(R.id.alarm_music_label)
 
         //Get Edit Texts
         etTitle = formView.findViewById(R.id.alarm_title)
         etDistance = formView.findViewById(R.id.alarm_distance)
+        swActive = formView.findViewById(R.id.alarm_active)
         spMusic = formView.findViewById(R.id.alarm_music)
-        tvPosition = formView.findViewById(R.id.alarm_position)
         btnDoMusic = formView.findViewById(R.id.alarm_button_music)
         etDistanceValue = formView.findViewById(R.id.alarm_distance_value)
 
-        var adapter = ArrayAdapter(activity!!.baseContext, R.layout.support_simple_spinner_dropdown_item, SongManager.songs)
+        val adapter = ArrayAdapter(activity!!.baseContext, R.layout.support_simple_spinner_dropdown_item, SongManager.songs)
         spMusic.adapter = adapter
         spMusic.onItemSelectedListener = this
 
         //SetTexts
         etTitle.setText(AppMemoryManager.alarmSelected.title)
+        swActive.isChecked = AppMemoryManager.alarmSelected.active
         etDistance.setText(AppMemoryManager.alarmSelected.distance.toString())
-        var song = SongManager.getSongById(AppMemoryManager.alarmSelected.soundId)
+        val song = SongManager.getSongById(AppMemoryManager.alarmSelected.soundId)
 
         //etDistanceValue.max = R.integer.alarm_distance_max - R.integer.alarm_distance_min /
         etDistanceValue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-            override fun onStopTrackingTouch(p0: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                if (seekBar == null) return
+                val dist = Utils.distanceInRange(seekBar.progress)
+                listener?.invoke(dist)
+            }
 
             override fun onStartTrackingTouch(p0: SeekBar?) {}
 
@@ -81,6 +77,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 val dist = Utils.distanceInRange(i)
                 etDistance.text = "$dist"
                 AppMemoryManager.alarmSelected.circle.radius = dist.toDouble()
+                //listener?.invoke(dist)
             }
 
         })
@@ -92,8 +89,6 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         player.setOnCompletionListener { btnDoMusic.text = "Play" }
         setSong(song.uri)
         spMusic.setSelection(SongManager.songs.indexOf(song))
-
-        tvPosition.text = AppMemoryManager.alarmSelected.latitude.toString() + " - " + AppMemoryManager.alarmSelected.longitude
 
         etTitle.addTextChangedListener(MyTextWatcher(lbTitle))
         etDistance.addTextChangedListener(MyTextWatcher(lbDistance))
@@ -125,7 +120,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         player.release()
     }
 
-    fun onButtonDoMusic(view: View) {
+    private fun onButtonDoMusic(view: View) {
         if (player.isPlaying)
         {
             btnDoMusic.text = "Play"
@@ -142,6 +137,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         AppMemoryManager.alarmSelected.title = etTitle.text.toString()
         AppMemoryManager.alarmSelected.distance = etDistance.text.toString().toInt()
+        AppMemoryManager.alarmSelected.active = swActive.isChecked
         AppMemoryManager.alarmSelected.soundId = SongManager.songs[spMusic.selectedItemPosition].id//TODO create some verification
         AppMemoryManager.save()
 

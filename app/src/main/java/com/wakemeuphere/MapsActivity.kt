@@ -18,7 +18,6 @@ import com.wakemeuphere.internal.*
 import com.wakemeuphere.internal.songs.SongManager
 import com.wakemeuphere.ui.fragments.AlarmFormFragment
 
-
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mMap: GoogleMap
@@ -113,8 +112,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 alarmSelected = alarm
                 alarmSelected.circle.asNew(resources)
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(alarmSelected.bounds, 45))
                 openFormFragment()
+                focusOnSelectedMarker(alarmSelected.distance)
 
 //                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
 //                startActivity(intent)
@@ -125,14 +124,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun openFormFragment(){
-        supportFragmentManager?.popBackStack()
+        supportFragmentManager.popBackStack()
         alarmFormFragment = AlarmFormFragment()
+        alarmFormFragment?.listener = ::focusOnSelectedMarker
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragment_container, alarmFormFragment!!)
         transaction.addToBackStack(null)
         transaction.commit()
 
         toggleBtnLayout(true)
+    }
+
+    private fun focusOnSelectedMarker(distance: Int) {
+        val bounds = Utils.boundsByDistance(alarmSelected.point, alarmSelected.distance)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 45))
     }
 
     private fun toggleBtnLayout(isVisible:Boolean){
