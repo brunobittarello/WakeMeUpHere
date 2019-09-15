@@ -12,13 +12,14 @@ import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.GoogleMap.*
 import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.google.android.gms.maps.model.CircleOptions
 import com.wakemeuphere.internal.*
 import com.wakemeuphere.internal.songs.SongManager
 import com.wakemeuphere.ui.fragments.AlarmFormFragment
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListener, OnMapClickListener, OnMapLongClickListener {
 
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
@@ -26,11 +27,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     var alarmFormFragment: AlarmFormFragment? = null
     var btnView: View? = null
     var fragmentVisible: Boolean = false
-
-
-    override fun onMarkerClick(p0: Marker?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,63 +63,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         loadMarkers()
         currentLocation()
 
-        mMap.setOnMapClickListener(object : GoogleMap.OnMapClickListener {
-            override fun onMapClick(position: LatLng?) {
-                Log.d("Map_Tag", "CLICK")
-            }
-        })
-
-        mMap.setOnMapLongClickListener(object : GoogleMap.OnMapLongClickListener{
-            override fun onMapLongClick(position: LatLng) {
-
-                newMarker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))!! as Marker
-
-                val newAlarm = Alarm()
-                newAlarm.point = position
-                newAlarm.marker = newMarker as Marker
-
-                AppMemoryManager.addAlarm(newAlarm)
-                alarmSelected = newAlarm
-
-                alarmSelected.circle = mMap.addCircle(
-                    CircleOptions().center(newMarker!!.position).radius(Utils.alarm_distance_min.toDouble())
-                )
-                alarmSelected.select(resources)
-
-                openFormFragment()
-
-            }
-        })
-
-        mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
-            override fun onMarkerClick(marker: Marker): Boolean {
-                if (fragmentVisible) {
-                    alarmSelected.deselect(resources)
-                }
-//                val an = AlarmNotification()
-//                val notif = an.createNotification(this@MapsActivity)
-//                an.showNotification(this@MapsActivity, notif)
-
-//                return true
-
-                //Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
-                val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
-
-                alarmSelected = alarm
-                alarmSelected.select(resources)
-
-                openFormFragment()
-                focusOnSelectedMarker(alarmSelected.distance)
-
-//                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
-//                startActivity(intent)
-
-                return true
-            }
-        })
+        mMap.setOnMapClickListener(this)
+        mMap.setOnMapLongClickListener(this)
+        mMap.setOnMarkerClickListener(this)
     }
 
-    fun openFormFragment(){
+    private fun openFormFragment(){
         supportFragmentManager.popBackStack()
         alarmFormFragment = AlarmFormFragment()
         alarmFormFragment?.listener = ::focusOnSelectedMarker
@@ -134,6 +79,52 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         toggleBtnLayout(true)
     }
+
+    //---- Region Maps Interfaces ----//
+    override fun onMapClick(position: LatLng?) {
+        Log.d("Map_Tag", "CLICK")
+    }
+
+    override fun onMapLongClick(position: LatLng) {
+        newMarker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))!! as Marker
+
+        val newAlarm = Alarm()
+        newAlarm.point = position
+        newAlarm.marker = newMarker as Marker
+
+        AppMemoryManager.addAlarm(newAlarm)
+        alarmSelected = newAlarm
+
+        alarmSelected.circle = mMap.addCircle(
+            CircleOptions().center(newMarker!!.position).radius(Utils.alarm_distance_min.toDouble())
+        )
+        alarmSelected.select(resources)
+
+        openFormFragment()
+    }
+
+    override fun onMarkerClick(marker: Marker?): Boolean {
+        if (fragmentVisible) {
+            alarmSelected.deselect(resources)
+        }
+        //val an = AlarmNotification()
+        //val notif = an.createNotification(this@MapsActivity)
+        //an.showNotification(this@MapsActivity, notif)
+
+        //return true
+
+        //Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
+        val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
+
+        alarmSelected = alarm
+        alarmSelected.select(resources)
+
+        openFormFragment()
+        focusOnSelectedMarker(alarmSelected.distance)
+
+        return true
+    }
+    //---- END Region Maps Interfaces ----//
 
     private fun focusOnSelectedMarker(distance: Int) {
         val bounds = Utils.boundsByDistance(alarmSelected.point, alarmSelected.distance)
