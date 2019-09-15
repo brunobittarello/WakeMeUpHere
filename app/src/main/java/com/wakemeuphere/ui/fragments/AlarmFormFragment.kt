@@ -102,7 +102,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         })
 
 //
-
+        btnDoMusic.setOnClickListener { view -> onButtonDoMusic(view) }
         player = MediaPlayer()
         player.isLooping = false
         player.setOnCompletionListener { btnDoMusic.text = "Play" }
@@ -141,8 +141,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         player.release()
     }
 
-    fun onButtonDoMusic(view: View)
-    {
+    fun onButtonDoMusic(view: View) {
         if (player.isPlaying)
         {
             btnDoMusic.text = "Play"
