@@ -1,5 +1,6 @@
 package com.wakemeuphere.internal
 
+import android.content.res.Resources
 import com.beust.klaxon.Json
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.LatLng
@@ -28,4 +29,15 @@ class Alarm {
         latitude = value.latitude
     }
     get() = LatLng(latitude, longitude)
+
+    fun select(resources: Resources) {
+        circle.asSelected(resources)
+    }
+
+    fun deselect(resources: Resources) {
+        if (active)
+            circle.asActive(resources)
+        else
+            circle.asInactive(resources)
+    }
 }

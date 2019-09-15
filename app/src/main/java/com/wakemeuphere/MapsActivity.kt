@@ -88,7 +88,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 alarmSelected.circle = mMap.addCircle(
                     CircleOptions().center(newMarker!!.position).radius(Utils.alarm_distance_min.toDouble())
                 )
-                alarmSelected.circle.asNew(resources)
+                alarmSelected.select(resources)
 
                 openFormFragment()
 
@@ -97,8 +97,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
             override fun onMarkerClick(marker: Marker): Boolean {
-                if(fragmentVisible){
-                    alarmSelected.circle.asNormal(resources)
+                if (fragmentVisible) {
+                    alarmSelected.deselect(resources)
                 }
 //                val an = AlarmNotification()
 //                val notif = an.createNotification(this@MapsActivity)
@@ -110,7 +110,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
 
                 alarmSelected = alarm
-                alarmSelected.circle.asNew(resources)
+                alarmSelected.select(resources)
 
                 openFormFragment()
                 focusOnSelectedMarker(alarmSelected.distance)
@@ -160,14 +160,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun onButtonCancelClicked(view: View) {
-        alarmSelected.circle.asNormal(resources)
+        alarmSelected.deselect(resources)
         newMarker?.remove()
         removeActiveFragment()
     }
 
     fun onButtonSaveClicked(view: View) {
-        alarmSelected.circle.asNormal(resources)
         alarmFormFragment?.saveForm(btnView!!)
+        alarmSelected.deselect(resources)
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Alarm saved!")
         builder.setMessage("Your alarm " + alarmSelected.title + " has been saved")
@@ -240,7 +240,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val point = LatLng(alarm.latitude, alarm.longitude)
             alarm.marker = mMap.addMarker(MarkerOptions().position(point).title(alarm.title))
             alarm.circle = mMap.addCircle(CircleOptions().center(point).radius(alarm.distance.toDouble()))
-            alarm.circle.asNormal(resources)
+            alarm.deselect(resources)
             //draw circle
         }
     }

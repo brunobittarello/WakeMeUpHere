@@ -4,8 +4,10 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
-    <color name="fillColorGreen">#6b7ab8a6</color>
-    <color name="strokeColorGreen">#5c8579</color>
-    <color name="fillColorNew">#6b4a66f2</color>
-    <color name="strokeColorNew">#3e53bf</color>
+    <color name="fillColorActive">#6b7ab8a6</color>
+    <color name="strokeColorActive">#5c8579</color>
+    <color name="fillColorSelected">#6b4a66f2</color>
+    <color name="strokeColorSelected">#3e53bf</color>
+    <color name="fillColorInactive">#6BC1C8EC</color>
+    <color name="strokeColorInactive">#ACB3D5</color>
 </resources>
