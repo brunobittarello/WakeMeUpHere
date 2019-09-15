@@ -1,19 +1,18 @@
 package com.wakemeuphere.internal
 
+import android.content.res.Resources
 import com.beust.klaxon.Json
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
-import com.google.maps.android.SphericalUtil
-import kotlin.math.sqrt
 
 class Alarm {
 
     var id: Int = 0
+    var active: Boolean = true
     var title: String = ""
-    var minDistance: Int = 0
-    var definitiveDistance: Int = 0
+    var distance: Int = 0
+        set(value) { field = Utils.distanceInRange(value) }
     var soundId: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
@@ -31,14 +30,14 @@ class Alarm {
     }
     get() = LatLng(latitude, longitude)
 
-    //https://stackoverflow.com/questions/15319431/how-to-convert-a-latlng-and-a-radius-to-a-latlngbounds-in-android-google-maps-ap
-    @Json(ignored = true)
-    val bounds: LatLngBounds
-        get() {
-            val distanceFromCenterToCorner = minDistance * sqrt(2.0)
-            val center = point
-            val southwestCorner = SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 225.0)
-            val northeastCorner = SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0)
-            return LatLngBounds(southwestCorner, northeastCorner)
-        }
+    fun select(resources: Resources) {
+        circle.asSelected(resources)
+    }
+
+    fun deselect(resources: Resources) {
+        if (active)
+            circle.asActive(resources)
+        else
+            circle.asInactive(resources)
+    }
 }
