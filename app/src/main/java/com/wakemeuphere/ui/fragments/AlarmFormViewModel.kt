@@ -1,7 +1,7 @@
-package com.wakemeuphere.ui.form
+package com.wakemeuphere.ui.fragments
 
 import androidx.lifecycle.ViewModel
 
-class FormViewModel : ViewModel() {
+class AlarmFormViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }

@@ -1,4 +1,4 @@
-package com.wakemeuphere.ui.form
+package com.wakemeuphere.ui.fragments
 
 import android.media.MediaPlayer
 import android.net.Uri
@@ -13,22 +13,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import com.google.android.gms.maps.model.Circle
-import com.wakemeuphere.MapsActivity
-import com.wakemeuphere.MyTextWatcher
 import com.wakemeuphere.R
 import com.wakemeuphere.internal.AppMemoryManager
+import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.wakemeuphere.internal.songs.SongManager
-import java.lang.Double
 import java.lang.Exception
 
-class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
+class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     companion object {
-        fun newInstance() = FormFragment()
+        fun newInstance() = AlarmFormFragment()
     }
 
-    private lateinit var viewModel: FormViewModel
+    private lateinit var viewModel: AlarmFormViewModel
     private lateinit var etTitle : EditText
     private lateinit var etDistance : TextView
     private lateinit var etDistanceValue : SeekBar
@@ -38,19 +35,6 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var player: MediaPlayer
     private lateinit var btnDoMusic: Button
     private lateinit var formView: View
-
-    private lateinit var callback: OnCircleChangedListener
-
-    fun setOnCircleChanged(callback: OnCircleChangedListener) {
-        this.callback = callback
-    }
-
-    // This interface can be implemented by the Activity, parent Fragment,
-    // or a separate test implementation.
-    interface OnCircleChangedListener {
-        fun circleValue(radius: kotlin.Double)
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,8 +79,8 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 // Display the current progress of SeekBar
 //                activity?.baseContext?.
                 etDistance.text = "$i"
-                callback.circleValue(i.toDouble())
-                AppMemoryManager.alarmSelected.minDistance = i
+                AppMemoryManager.alarmSelected.circle.radius = i.toDouble()
+                //AppMemoryManager.alarmSelected.minDistance = i
             }
 
         })
@@ -121,7 +105,7 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(FormViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(AlarmFormViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
@@ -164,39 +148,18 @@ class FormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //        onBackPressed()
     }
 
-    fun deleteRegister(view: View) {
-
-        //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
-        val builder = AlertDialog.Builder(activity!!.baseContext)
-
-
-        builder.setTitle("Remove alert")//TODO use resource
-        builder.setMessage("Are you want to remove this alert?")//TODO use resource
-
-        // Set a positive button and its click listener on alert dialog
-        builder.setPositiveButton("YES"){dialog, which ->
-            AppMemoryManager.deleteSelectedAlarm()
-            Toast.makeText(activity!!.baseContext, "Alarm deleted!", Toast.LENGTH_SHORT).show()
-//            onBackPressed()
-        }
-
-        // Display a negative button on alert dialog
-        builder.setNegativeButton("No"){dialog,which ->
-            //Toast.makeText(applicationContext,"You are not agree.",Toast.LENGTH_SHORT).show()
-        }
-
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
+    fun deleteAlarm() {
+        AppMemoryManager.deleteSelectedAlarm()
     }
 
-    //OnItemSelectedListener
+    //REGION OnItemSelectedListener
     override fun onItemSelected(p0: AdapterView<*>?, view: View?, index: Int, index2: Long) {
         btnDoMusic.text = "Play"
         setSong(SongManager.songs[spMusic.selectedItemPosition].uri)
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) { }
-
+    //END REGION OnItemSelectedListener
 
 
 

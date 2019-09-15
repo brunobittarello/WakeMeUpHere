@@ -3,46 +3,30 @@ package com.wakemeuphere
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Color
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import androidx.fragment.app.FragmentActivity
 import com.wakemeuphere.internal.Alarm
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.Circle
-import com.wakemeuphere.internal.AlarmNotification
 import com.wakemeuphere.internal.songs.SongManager
-import com.wakemeuphere.ui.form.FormFragment
-import kotlinx.android.synthetic.main.form_fragment.*
-import java.util.*
+import com.wakemeuphere.ui.fragments.AlarmFormFragment
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener, FormFragment.OnCircleChangedListener {
-    override fun circleValue(radius: Double) {
-        alarmSelected.circle.radius = radius
-    }
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
     private var activeFragment: Int = 0
     var newMarker: Marker? = null
-    var formFragment: FormFragment? = null
+    var alarmFormFragment: AlarmFormFragment? = null
     var btnView: View? = null
     var fragmentVisible: Boolean = false
 
@@ -50,7 +34,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     override fun onMarkerClick(p0: Marker?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,11 +49,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     override fun onAttachFragment(fragment: Fragment) {
-        if (fragment is FormFragment) {
-            fragment.setOnCircleChanged(this)
-        }
+        //Nothing
     }
-
 
     /**
      * Manipulates the map once available.
@@ -96,7 +76,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         })
 
-
         mMap.setOnMapLongClickListener(object : GoogleMap.OnMapLongClickListener{
             override fun onMapLongClick(position: LatLng) {
 
@@ -105,8 +84,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
                 newMarker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))!! as Marker
 
-                var newAlarm = Alarm()
-                newAlarm.setLatLng(position)
+                val newAlarm = Alarm()
+                newAlarm.point = position
                 newAlarm.marker = newMarker as Marker
 
                 AppMemoryManager.addAlarm(newAlarm)
@@ -139,12 +118,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
                 //Elvis operator https://en.wikipedia.org/wiki/Elvis_operator
                 val alarm = AppMemoryManager.alarms.find { alarm -> alarm.marker == marker } ?: return true
-                val point = LatLng(alarm.latitude, alarm.longitude)
 
                 alarmSelected = alarm
                 alarmSelected.circle.strokeColor = R.color.strokeColorNew
                 alarmSelected.circle.fillColor = R.color.fillColorNew
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, alarmSelected.minDistance + 3000f))
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(alarmSelected.bounds, 45))
                 openFormFragment()
 
 //                val intent = Intent(this@MapsActivity, AlarmForm::class.java);
@@ -153,15 +132,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 return true
             }
         })
-
-
     }
 
     fun openFormFragment(){
         supportFragmentManager?.popBackStack()
-        formFragment = FormFragment()
+        alarmFormFragment = AlarmFormFragment()
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment_container, formFragment!!)
+        transaction.replace(R.id.fragment_container, alarmFormFragment!!)
         transaction.addToBackStack(null)
         transaction.commit()
 
@@ -197,7 +174,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     fun onButtonSaveClicked(view: View) {
         alarmSelected.circle.strokeColor = R.color.strokeColorGreen
         alarmSelected.circle.fillColor = R.color.fillColorGreen
-        formFragment?.saveForm(btnView!!)
+        alarmFormFragment?.saveForm(btnView!!)
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Alarm saved!")
         builder.setMessage("Your alarm " + alarmSelected.title + " has been saved")
@@ -208,9 +185,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun onButtonDeleteClicked(view: View) {
+        Log.d("DELETE", "onButtonDeleteClicked")
 
         //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
-        val builder = AlertDialog.Builder(baseContext)
+        val builder = AlertDialog.Builder(this)
 
 
         builder.setTitle("Remove alert")//TODO use resource
@@ -218,11 +196,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // Set a positive button and its click listener on alert dialog
         builder.setPositiveButton("YES"){ _, _ ->
-//            AppMemoryManager.deleteSelectedAlarm()
-            formFragment?.deleteRegister(btnView!!)
+            AppMemoryManager.deleteSelectedAlarm()
+            alarmFormFragment?.deleteAlarm()
             removeActiveFragment()
             Toast.makeText(baseContext, "Alarm deleted!", Toast.LENGTH_SHORT).show()
-//            onBackPressed()
         }
 
         // Display a negative button on alert dialog
@@ -233,18 +210,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val dialog: AlertDialog = builder.create()
         dialog.show()
     }
-
-//    private fun setActiveFragment(fragment: Fragment){
-//        this.activeFragment = fragment
-//    }
-//
-//    private fun getActiveFragment(){
-//        return this.activeFragment
-//    }
-//
-//    private fun createActiveFragment(){
-//
-//    }
 
     //https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient
     //https://medium.com/@droidbyme/get-current-location-using-fusedlocationproviderclient-in-android-cb7ebf5ab88e
@@ -288,6 +253,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             //draw circle
         }
     }
-
-
 }
