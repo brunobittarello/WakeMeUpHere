@@ -1,5 +1,6 @@
 package com.wakemeuphere.internal
 
+import android.content.res.Resources
 import com.beust.klaxon.Json
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.LatLng
@@ -8,9 +9,10 @@ import com.google.android.gms.maps.model.Marker
 class Alarm {
 
     var id: Int = 0
+    var active: Boolean = true
     var title: String = ""
-    var minDistance: Int = 0
-    var definitiveDistance: Int = 0
+    var distance: Int = 0
+        set(value) { field = Utils.distanceInRange(value) }
     var soundId: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
@@ -20,12 +22,22 @@ class Alarm {
     @Json(ignored = true)
     lateinit var circle: Circle
 
-    fun setLatLng (position: LatLng) {
-        longitude = position.longitude
-        latitude = position.latitude
+    @Json(ignored = true)
+    var point: LatLng
+    set(value) {
+        longitude = value.longitude
+        latitude = value.latitude
+    }
+    get() = LatLng(latitude, longitude)
+
+    fun select(resources: Resources) {
+        circle.asSelected(resources)
     }
 
-    fun getLatLng () : LatLng {
-        return LatLng(latitude, longitude)
+    fun deselect(resources: Resources) {
+        if (active)
+            circle.asActive(resources)
+        else
+            circle.asInactive(resources)
     }
 }

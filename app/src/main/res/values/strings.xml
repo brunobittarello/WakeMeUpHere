@@ -24,4 +24,5 @@
     <string name="alarm_distance">Distance</string>
     <string name="alarm_music">Music</string>
     <string name="alarm_position">Position</string>
+    <string name="alarm_active">Active</string>
 </resources>
