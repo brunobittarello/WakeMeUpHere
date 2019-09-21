@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.google.android.gms.maps.model.LatLng
 import com.wakemeuphere.R
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.Utils
@@ -30,6 +31,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var player: MediaPlayer
     private lateinit var btnDoMusic: Button
     private lateinit var formView: View
+    private var isMakerMoved : Boolean = false
     var listener: ((i: Int)->Unit)? = null
 
     override fun onCreateView(
@@ -118,6 +120,9 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onDestroy() {
         super.onDestroy()
         player.release()
+        if (!isMakerMoved) return
+        AppMemoryManager.alarmSelected.marker.position = AppMemoryManager.alarmSelected.point
+        AppMemoryManager.alarmSelected.circle.center = AppMemoryManager.alarmSelected.marker.position
     }
 
     private fun onButtonDoMusic(view: View) {
@@ -134,14 +139,13 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     fun saveForm(view: View) {
-
+        if (isMakerMoved)
+            AppMemoryManager.alarmSelected.point = AppMemoryManager.alarmSelected.marker.position
         AppMemoryManager.alarmSelected.title = etTitle.text.toString()
         AppMemoryManager.alarmSelected.distance = etDistance.text.toString().toInt()
         AppMemoryManager.alarmSelected.active = swActive.isChecked
         AppMemoryManager.alarmSelected.soundId = SongManager.songs[spMusic.selectedItemPosition].id//TODO create some verification
         AppMemoryManager.save()
-
-//        onBackPressed()
     }
 
     fun deleteAlarm() {
@@ -157,6 +161,10 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onNothingSelected(p0: AdapterView<*>?) { }
     //END REGION OnItemSelectedListener
 
+    fun onMarkerMoved() {
+        isMakerMoved = true
+        AppMemoryManager.alarmSelected.circle.center = AppMemoryManager.alarmSelected.marker.position
+    }
 
 
     class MyTextWatcher : TextWatcher
