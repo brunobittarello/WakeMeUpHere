@@ -32,9 +32,11 @@ class Alarm {
 
     fun select(resources: Resources) {
         circle.asSelected(resources)
+        marker.isDraggable = true
     }
 
     fun deselect(resources: Resources) {
+        marker.isDraggable = false
         if (active)
             circle.asActive(resources)
         else

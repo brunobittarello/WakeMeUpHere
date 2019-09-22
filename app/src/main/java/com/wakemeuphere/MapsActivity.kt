@@ -19,7 +19,7 @@ import com.wakemeuphere.internal.*
 import com.wakemeuphere.internal.songs.SongManager
 import com.wakemeuphere.ui.fragments.AlarmFormFragment
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListener, OnMapClickListener, OnMapLongClickListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListener, OnMapClickListener, OnMapLongClickListener, OnMarkerDragListener {
 
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
@@ -66,13 +66,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         mMap.setOnMapClickListener(this)
         mMap.setOnMapLongClickListener(this)
         mMap.setOnMarkerClickListener(this)
+        mMap.setOnMarkerDragListener(this)
     }
 
     private fun openFormFragment(){
         supportFragmentManager.popBackStack()
         alarmFormFragment = AlarmFormFragment()
+        alarmFormFragment?.executeOpenAnimation = !fragmentVisible
         alarmFormFragment?.listener = ::focusOnSelectedMarker
         val transaction = supportFragmentManager.beginTransaction()
+        if (fragmentVisible)
+            transaction.setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_from_bottom,R.anim.enter_from_bottom, R.anim.exit_from_bottom)
         transaction.replace(R.id.fragment_container, alarmFormFragment!!)
         transaction.addToBackStack(null)
         transaction.commit()
@@ -124,6 +128,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
         return true
     }
+
+    override fun onMarkerDragStart(marker: Marker?) {
+        if (!isAValidMarkerDrag(marker)) return
+    }
+
+    override fun onMarkerDrag(marker: Marker?) {
+        if (!isAValidMarkerDrag(marker)) return
+        alarmFormFragment?.onMarkerMoved()
+    }
+
+    override fun onMarkerDragEnd(marker: Marker?) {
+        if (!isAValidMarkerDrag(marker)) return
+    }
+
+    private fun isAValidMarkerDrag(marker: Marker?) : Boolean
+    {
+        return alarmFormFragment != null && marker == AppMemoryManager.alarmSelected.marker
+    }
     //---- END Region Maps Interfaces ----//
 
     private fun focusOnSelectedMarker(distance: Int) {
@@ -147,7 +169,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
     private fun removeActiveFragment(){
         toggleBtnLayout(false)
-        supportFragmentManager.popBackStack()
+        alarmFormFragment?.closeAnimation { supportFragmentManager.popBackStack() }
     }
 
     fun onButtonCancelClicked(view: View) {
