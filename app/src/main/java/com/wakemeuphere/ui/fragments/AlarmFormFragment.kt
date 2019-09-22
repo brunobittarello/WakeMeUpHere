@@ -1,5 +1,6 @@
 package com.wakemeuphere.ui.fragments
 
+import android.animation.ValueAnimator
 import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
@@ -12,7 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.google.android.gms.maps.model.LatLng
+import androidx.core.animation.doOnEnd
 import com.wakemeuphere.R
 import com.wakemeuphere.internal.AppMemoryManager
 import com.wakemeuphere.internal.Utils
@@ -33,6 +34,7 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var formView: View
     private var isMakerMoved : Boolean = false
     var listener: ((i: Int)->Unit)? = null
+    var executeOpenAnimation: Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -97,7 +99,23 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         etDistanceValue.progress = AppMemoryManager.alarmSelected.distance
         //spMusic.addTextChangedListener(MyTextWatcher(lbMusic))
 
+        if (executeOpenAnimation) openAnimation()
         return formView
+    }
+
+    private fun openAnimation() {
+        val animFrag = ValueAnimator.ofInt(0, formView.layoutParams.height)
+        animFrag.addUpdateListener(FragmentAnimation(formView))
+        animFrag.duration = resources.getInteger(R.integer.form_open_time).toLong()
+        animFrag.start()
+    }
+
+    fun closeAnimation(action: () -> Unit) {
+        val animFrag = ValueAnimator.ofInt(formView.layoutParams.height, 0)
+        animFrag.addUpdateListener(FragmentAnimation(formView))
+        animFrag.doOnEnd { action.invoke() }
+        animFrag.duration = resources.getInteger(R.integer.form_close_time).toLong()
+        animFrag.start()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -191,7 +209,17 @@ class AlarmFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 label.visibility = View.VISIBLE
             Log.d("MyTextWatcher", "OnTextChanged")
         }
-
     }
+}
 
+//https://stackoverflow.com/questions/32835397/android-property-animation-how-to-increase-view-height
+class FragmentAnimation(private var target: View) : ValueAnimator.AnimatorUpdateListener {
+
+    override fun onAnimationUpdate(valAnimator: ValueAnimator?) {
+        if (valAnimator == null) return
+        val value = valAnimator.animatedValue as Int
+        val layout = this.target.layoutParams
+        layout.height = value
+        target.layoutParams = layout
+    }
 }

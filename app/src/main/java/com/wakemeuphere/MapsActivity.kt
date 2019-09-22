@@ -72,8 +72,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
     private fun openFormFragment(){
         supportFragmentManager.popBackStack()
         alarmFormFragment = AlarmFormFragment()
+        alarmFormFragment?.executeOpenAnimation = !fragmentVisible
         alarmFormFragment?.listener = ::focusOnSelectedMarker
         val transaction = supportFragmentManager.beginTransaction()
+        if (fragmentVisible)
+            transaction.setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_from_bottom,R.anim.enter_from_bottom, R.anim.exit_from_bottom)
         transaction.replace(R.id.fragment_container, alarmFormFragment!!)
         transaction.addToBackStack(null)
         transaction.commit()
@@ -166,7 +169,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
     private fun removeActiveFragment(){
         toggleBtnLayout(false)
-        supportFragmentManager.popBackStack()
+        alarmFormFragment?.closeAnimation { supportFragmentManager.popBackStack() }
     }
 
     fun onButtonCancelClicked(view: View) {
