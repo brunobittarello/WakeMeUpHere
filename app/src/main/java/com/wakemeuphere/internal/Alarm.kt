@@ -5,18 +5,21 @@ import com.beust.klaxon.Json
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.wakemeuphere.internal.AppMemoryManager.alarmSelected
 
 class Alarm {
 
     var id: Int = 0
     var active: Boolean = true
     var title: String = ""
-    var distance: Int = 0
+    var distance: Int = 500
         set(value) { field = Utils.distanceInRange(value) }
     var soundId: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 
+    @Json(ignored = true)
+    var isNew: Boolean = false
     @Json(ignored = true)
     lateinit var marker: Marker
     @Json(ignored = true)
@@ -41,5 +44,10 @@ class Alarm {
             circle.asActive(resources)
         else
             circle.asInactive(resources)
+    }
+
+    fun clearFromMaps() {
+        marker.remove()
+        circle.remove()
     }
 }

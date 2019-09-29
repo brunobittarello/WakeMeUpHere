@@ -23,7 +23,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
     private lateinit var mMap: GoogleMap
     private var isInitLocalSet: Boolean = false
-    var newMarker: Marker? = null
     var alarmFormFragment: AlarmFormFragment? = null
     var btnView: View? = null
     var fragmentVisible: Boolean = false
@@ -69,45 +68,53 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         mMap.setOnMarkerDragListener(this)
     }
 
-    private fun openFormFragment(){
-        supportFragmentManager.popBackStack()
-        alarmFormFragment = AlarmFormFragment()
-        alarmFormFragment?.executeOpenAnimation = !fragmentVisible
-        alarmFormFragment?.listener = ::focusOnSelectedMarker
-        val transaction = supportFragmentManager.beginTransaction()
-        if (fragmentVisible)
-            transaction.setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_from_bottom,R.anim.enter_from_bottom, R.anim.exit_from_bottom)
-        transaction.replace(R.id.fragment_container, alarmFormFragment!!)
-        transaction.addToBackStack(null)
-        transaction.commit()
-
-        toggleBtnLayout(true)
-    }
-
-    //---- Region Maps Interfaces ----//
+    //------------------------------- Region Maps Interfaces ----------------------------------------------------------//
     override fun onMapClick(position: LatLng?) {
         Log.d("Map_Tag", "CLICK")
     }
 
     override fun onMapLongClick(position: LatLng) {
-        newMarker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))!! as Marker
-
-        val newAlarm = Alarm()
-        newAlarm.point = position
-        newAlarm.marker = newMarker as Marker
-
-        AppMemoryManager.addAlarm(newAlarm)
-        alarmSelected = newAlarm
-
-        alarmSelected.circle = mMap.addCircle(
-            CircleOptions().center(newMarker!!.position).radius(Utils.alarm_distance_min.toDouble())
-        )
-        alarmSelected.select(resources)
-
-        openFormFragment()
+        addAlarm(position)
     }
 
     override fun onMarkerClick(marker: Marker?): Boolean {
+        return editAlarm(marker)
+    }
+
+    override fun onMarkerDragStart(marker: Marker?) {
+        if (!isAValidMarkerDrag(marker)) return
+    }
+
+    override fun onMarkerDrag(marker: Marker?) {
+        if (!isAValidMarkerDrag(marker)) return
+        alarmFormFragment?.onMarkerMoved()
+    }
+
+    override fun onMarkerDragEnd(marker: Marker?) {
+        if (!isAValidMarkerDrag(marker)) return
+    }
+
+    private fun isAValidMarkerDrag(marker: Marker?) : Boolean
+    {
+        return alarmFormFragment != null && marker == AppMemoryManager.alarmSelected.marker
+    }
+    //------------------------------- END Region Maps Interfaces -----------------------------------------------------//
+    //------------------------------- Region AlarmCrud ---------------------------------------------------------------//
+    private fun addAlarm(position: LatLng) {
+        val newMarker = mMap.addMarker(MarkerOptions().position(position).title("Novo ponto"))
+
+        val newAlarm = Alarm()
+        newAlarm.isNew = true
+        newAlarm.point = position
+        newAlarm.marker = newMarker
+        newAlarm.circle = mMap.addCircle(CircleOptions().center(newMarker.position).radius(Utils.alarm_distance_min.toDouble()))
+        newAlarm.select(resources)
+
+        alarmSelected = newAlarm
+        openFormFragment()
+    }
+
+    private fun editAlarm(marker: Marker?): Boolean {
         if (fragmentVisible) {
             alarmSelected.deselect(resources)
         }
@@ -128,28 +135,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
         return true
     }
-
-    override fun onMarkerDragStart(marker: Marker?) {
-        if (!isAValidMarkerDrag(marker)) return
-    }
-
-    override fun onMarkerDrag(marker: Marker?) {
-        if (!isAValidMarkerDrag(marker)) return
-        alarmFormFragment?.onMarkerMoved()
-    }
-
-    override fun onMarkerDragEnd(marker: Marker?) {
-        if (!isAValidMarkerDrag(marker)) return
-    }
-
-    private fun isAValidMarkerDrag(marker: Marker?) : Boolean
-    {
-        return alarmFormFragment != null && marker == AppMemoryManager.alarmSelected.marker
-    }
-    //---- END Region Maps Interfaces ----//
+    //------------------------------- END Region AlarmCrud  ----------------------------------------------------------//
 
     private fun focusOnSelectedMarker(distance: Int) {
-        val bounds = Utils.boundsByDistance(alarmSelected.point, alarmSelected.distance)
+        val bounds = Utils.boundsByDistance(alarmSelected.point, distance)
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 45))
     }
 
@@ -167,6 +156,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         btnView!!.visibility = View.VISIBLE
     }
 
+    private fun openFormFragment(){
+        supportFragmentManager.popBackStack()
+        alarmFormFragment = AlarmFormFragment()
+        alarmFormFragment?.executeOpenAnimation = !fragmentVisible
+        alarmFormFragment?.listener = ::focusOnSelectedMarker
+        val transaction = supportFragmentManager.beginTransaction()
+        if (fragmentVisible)
+            transaction.setCustomAnimations(R.anim.enter_from_bottom, R.anim.exit_from_bottom,R.anim.enter_from_bottom, R.anim.exit_from_bottom)
+        transaction.replace(R.id.fragment_container, alarmFormFragment!!)
+        transaction.addToBackStack(null)
+        transaction.commit()
+
+        toggleBtnLayout(true)
+    }
+
     private fun removeActiveFragment(){
         toggleBtnLayout(false)
         alarmFormFragment?.closeAnimation { supportFragmentManager.popBackStack() }
@@ -174,7 +178,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
     fun onButtonCancelClicked(view: View) {
         alarmSelected.deselect(resources)
-        newMarker?.remove()
+        if (alarmSelected.isNew)
+            alarmSelected.clearFromMaps()
         removeActiveFragment()
     }
 
@@ -192,6 +197,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
     fun onButtonDeleteClicked(view: View) {
         Log.d("DELETE", "onButtonDeleteClicked")
+
+        if (alarmSelected.isNew) {
+            onButtonCancelClicked(view)
+            return
+        }
 
         //https://medium.com/@suragch/making-an-alertdialog-in-android-2045381e2edb
         val builder = AlertDialog.Builder(this)
