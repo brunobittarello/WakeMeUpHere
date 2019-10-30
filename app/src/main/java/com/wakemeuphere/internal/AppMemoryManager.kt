@@ -34,8 +34,7 @@ object AppMemoryManager {
     fun deleteSelectedAlarm()
     {
         alarms.remove(alarmSelected)
-        alarmSelected.marker.remove()
-        alarmSelected.circle.remove()
+        alarmSelected.clearFromMaps()
         save()
     }
 
